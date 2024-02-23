@@ -76,7 +76,6 @@ local function fillTree()
         local control = inp:GetAttrs().INPS_ID 
 		local controlName = inp:GetAttrs().INPS_Name
 		if control_type == 'Number' then
-			--print(input_type)
         local it = mainWnditm.NodeControls:NewItem()
             it.Text[0] = control
 			it.Text[1] = controlName
@@ -1371,7 +1370,6 @@ local function animUtility(uniqueName)
             ActiveTool = "]] .. uniqueName .. [[_MASTERANIM"
         }
     ]]
-    --print(s)
     return s
 end
 
@@ -1405,10 +1403,8 @@ function mainWnd.On.Paste.Clicked(ev)
 	node = comp.ActiveTool
 	nodeName = node:GetAttrs().TOOLS_Name
     if name == '' then
-        print("No Unqiue Name")
         showMessage("Please Write Out a Unique Name.")
     else
-        print("Pasteing " .. name)
         comp:Paste(bmd.readstring(animUtility(name)))
 		local nodestr = tostring(nodeName)
 		local controlStr = tostring(Control)
