@@ -75,12 +75,18 @@ local function fillTree()
 		local control_type = inp:GetAttrs().INPS_DataType
         local control = inp:GetAttrs().INPS_ID 
 		local controlName = inp:GetAttrs().INPS_Name
+		local it = mainWnditm.NodeControls:NewItem()
+            it.Text[0] = control
+			it.Text[1] = controlName
+            mainWnditm.NodeControls:AddTopLevelItem(it)
+		--[[
 		if control_type == 'Number' then
         local it = mainWnditm.NodeControls:NewItem()
             it.Text[0] = control
 			it.Text[1] = controlName
             mainWnditm.NodeControls:AddTopLevelItem(it)
 		end
+		]]
     end
 end
 
