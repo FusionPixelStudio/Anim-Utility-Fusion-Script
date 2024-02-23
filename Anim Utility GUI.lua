@@ -1,3 +1,13 @@
+--[[
+	Anim Utility - A Fusion Animation Engine
+	- Created by FusionPixelStudio(AsherRoland)
+
+	This tool lets you choose an input to connect
+	an animation engine to via modifiers.
+
+	Consider Supporting me: https://ko-fi.com/asherroland
+]]
+
 local ui = fu.UIManager
 local disp = bmd.UIDispatcher(ui)
 
@@ -5,7 +15,34 @@ local width, height = 370,450
 local hPos, vPos = 880,350
 
 local node = comp.ActiveTool
-local flow = comp.CurrentFrame.FlowView
+
+local platform = (FuPLATFORM_WINDOWS and "Windows") or
+                 (FuPLATFORM_MAC and "Mac") or
+                 (FuPLATFORM_LINUX and "Linux")
+
+local function script_path()
+    return debug.getinfo(2, "S").source:sub(2)
+end
+
+
+local function ScriptIsInstalled()
+    local script_path = script_path()
+    if platform == "Windows" then
+        local match1 = script_path:find("\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts")
+        local match2 = script_path:find("\\Blackmagic Design\\DaVinci Resolve\\Fusion\\Scripts")
+        return match1 ~= nil or match2 ~= nil
+    elseif platform == "Mac" then
+        local match1 = script_path:find("/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts")
+        return match1 ~= nil
+    else
+        local match1 = script_path:find("resolve/Fusion/Scripts")
+        local match2 = script_path:find("resolve/Fusion/Scripts")
+        local match3 = script_path:find("/DaVinciResolve/Fusion/Scripts")
+        return match1 ~= nil or match2 ~= nil or match3 ~= nil
+    end
+end
+
+local SCRIPT_INSTALLED = ScriptIsInstalled()
 
 local msgWnd = disp:AddWindow(
 	{
@@ -24,35 +61,6 @@ local msgWnd = disp:AddWindow(
 )
 local msgWnditm = msgWnd:GetItems()
 
-local mainWnd = disp:AddWindow(
-	{
-		ID = "MainWindow",
-		WindowTitle = "Anim Utility | Selector",
-		Geometry = { hPos,vPos,width,height },
-        MinimumSize = {300, 450},
-
-		ui:VGroup{
-            ID = "root",
-            ui:HGroup{
-				Weight = 0.02,
-                ui:Label{ID = 'ControlsLabel', Text = 'Node Controls (Click a Control to Select)', Weight = 0.02},
-				ui:Button{ID = 'Reload', Text = 'Reload', Weight = 0.005},
-			},
-			ui:VGroup{
-				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01},
-                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25},
-                ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name for Modifiers', Weight = 0.03},
-                ui:Button{ID = 'Paste', Text = 'Paste Anim Utility', Weight = 0.02},
-            },
-        }
-    }
-)
-local mainWnditm = mainWnd:GetItems()
-
-function mainWnd.On.MainWindow.Close(ev)
-	disp:ExitLoop()
-end
-
 function msgWnd.On.MsgWindow.Close(ev)
 	disp:ExitLoop()
 end
@@ -68,26 +76,50 @@ local function showMessage(str)
 	msgWnd:Hide()
 end
 
-local function fillTree()
-	local tool = comp.ActiveTool
-    local x = tool:GetInputList()
-    for _, inp in pairs(x) do
-		local control_type = inp:GetAttrs().INPS_DataType
-        local control = inp:GetAttrs().INPS_ID 
-		local controlName = inp:GetAttrs().INPS_Name
-		local it = mainWnditm.NodeControls:NewItem()
-            it.Text[0] = control
-			it.Text[1] = controlName
-            mainWnditm.NodeControls:AddTopLevelItem(it)
-		--[[
-		if control_type == 'Number' then
-        local it = mainWnditm.NodeControls:NewItem()
-            it.Text[0] = control
-			it.Text[1] = controlName
-            mainWnditm.NodeControls:AddTopLevelItem(it)
-		end
-		]]
+local function CopyFile(source, target)
+    local source_file = io.open(source, "r")
+    local contents = source_file:read("*a")
+    source_file:close()
+
+    local target_file = io.open(target, "w")
+    if target_file == nil then
+        return false
     end
+    target_file:write(contents)
+    target_file:close()
+
+    return true
+end
+
+
+local function InstallScript()
+    local source_path = script_path()
+    local target_path = nil
+    local modules_path = nil
+    if platform == "Windows" then
+        target_path = os.getenv("APPDATA") .. "\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\"
+    elseif platform == "Mac" then
+        target_path = os.getenv("HOME") .. "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp/"
+    else
+        target_path = os.getenv("HOME") .. "/.local/share/DaVinciResolve/Fusion/Scripts/Comp/"
+    end
+
+    local script_name = source_path:match(".*[/\\](.*)")
+	target_path = target_path .. script_name
+
+    -- Copy the file.
+    local success = CopyFile(source_path, target_path)
+    if not success then
+        showMessage("Failed to install\nAnim Utility could not be installed automatically. " ..
+            "Please manually copy to the Scripts/Comp folder.")
+        msgWnd:Show()
+		disp:RunLoop()
+		msgWnd:Hide()
+        return false
+    end
+
+    print("Anim Utility Installed to " .. target_path)
+    return true
 end
 
 local function animUtility(uniqueName)
@@ -1379,6 +1411,65 @@ local function animUtility(uniqueName)
     return s
 end
 
+local function CreateToolWindow()
+	local mainWnd = disp:AddWindow(
+	{
+		ID = "MainWindow",
+		WindowTitle = "Anim Utility | Selector",
+		Geometry = { hPos,vPos,width,height },
+        MinimumSize = {300, 450},
+		Spacing = 0,
+		ui:VGroup{
+		ui:VGroup{
+                    Weight = 0,
+                    ID = "install_bar",
+                    Spacing = 0
+                },
+		ui:VGroup{
+            ID = "root",
+            ui:HGroup{
+				Weight = 0.02,
+                ui:Label{ID = 'ControlsLabel', Text = 'Node Controls (Click a Control to Select)', Weight = 0.02},
+				ui:Button{ID = 'Reload', Text = 'Reload', Weight = 0.005},
+			},
+			ui:VGroup{
+				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01},
+                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25},
+                ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name for Modifiers', Weight = 0.03},
+                ui:Button{ID = 'Paste', Text = 'Paste Anim Utility', Weight = 0.02},
+            },
+        },
+	}
+    }
+)
+local mainWnditm = mainWnd:GetItems()
+
+function mainWnd.On.MainWindow.Close(ev)
+	disp:ExitLoop()
+end
+
+local function fillTree()
+	local tool = comp.ActiveTool
+    local x = tool:GetInputList()
+    for _, inp in pairs(x) do
+		local control_type = inp:GetAttrs().INPS_DataType
+        local control = inp:GetAttrs().INPS_ID 
+		local controlName = inp:GetAttrs().INPS_Name
+		local it = mainWnditm.NodeControls:NewItem()
+            it.Text[0] = control
+			it.Text[1] = controlName
+            mainWnditm.NodeControls:AddTopLevelItem(it)
+		--[[
+		if control_type == 'Number' then
+        local it = mainWnditm.NodeControls:NewItem()
+            it.Text[0] = control
+			it.Text[1] = controlName
+            mainWnditm.NodeControls:AddTopLevelItem(it)
+		end
+		]]
+    end
+end
+
 local Control
 local nodeName
 
@@ -1423,13 +1514,59 @@ function mainWnd.On.Paste.Clicked(ev)
     end
 end
 
-if type(node) ~= "userdata" then
-    showMessage("NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
-else
+function mainWnd.On.install.Clicked(ev)
+	local success = InstallScript()
+	if not success then
+		return
+	end
+
+	local content = mainWnd:GetItems().install_bar
+	content:RemoveChild("install_group")
+	mainWnd:RecalcLayout()
+end
+	if not SCRIPT_INSTALLED then
+		print("Script Not Installed!")
+		local content = mainWnd:GetItems().install_bar
+		content:AddChild(
+			ui:VGroup
+			{
+				ID = "install_group",
+				Weight = 0,
+				Spacing = 3,
+				StyleSheet = [[
+					QWidget
+					{
+						margin-bottom: 0px;
+					}
+				]],
+				ui:HGroup{
+					ui:Label{
+						Weight = 0.45,
+						Text = "Install tool to Resolve's Scripts folder?"
+					},
+					ui:Button{
+						Weight = 0.30,
+						ID = "install",
+						Text = "Install",
+					}
+				},
+				ui:Label{
+					Weight = 0,
+					FrameStyle = 4,
+				}
+			})
+	end
     fillTree()
+	mainWnd:RecalcLayout()
     mainWnd:Show()
     disp:RunLoop()
     mainWnd:Hide()
+end
+
+if type(node) ~= "userdata" then
+    showMessage("NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
+else
+	CreateToolWindow()
 end
 
 collectgarbage()
