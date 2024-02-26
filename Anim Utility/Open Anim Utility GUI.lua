@@ -8,11 +8,22 @@
 	Consider Supporting me: https://ko-fi.com/asherroland
 ]]
 
-local ui = fu.UIManager
-local disp = bmd.UIDispatcher(ui)
+-- Sets position as last position
+AnimUtility_HVpos = fusion:GetData("AnimUtility_HVpos")
+local AnimUtility_HVpos_x = 0
+local AnimUtility_HVpos_y = 0
+if AnimUtility_HVpos ~= nil then
+    AnimUtility_HVpos_x = AnimUtility_HVpos[1]
+    AnimUtility_HVpos_y = AnimUtility_HVpos[2]
+else
+    AnimUtility_HVpos_x = 880
+    AnimUtility_HVpos_y = 350
+end
 
 local width, height = 370,450
-local hPos, vPos = 880,350
+
+local ui = fu.UIManager
+local disp = bmd.UIDispatcher(ui)
 
 local node = comp.ActiveTool
 local mainWnditm
@@ -21,209 +32,97 @@ local nodeName
 local g_FilterText = ""
 local NodeControls = {}
 
-local platform = (FuPLATFORM_WINDOWS and "Windows") or
-                 (FuPLATFORM_MAC and "Mac") or
-                 (FuPLATFORM_LINUX and "Linux")
+local fuPath = comp:MapPath('Scripts:/')
+local folderMain = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/')
+local folderRoot = comp:MapPath('Scripts:/Comp/FusionPixelStudio/')
+local intfile1 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/About Anim Utility.lua')
+local intfile2 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/Anim Utility GUI.lua')
+local intfile3 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/FusionPixel.png')
+local intfile4 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/')
 
+-- Gets where Script is on first use
 local function script_path()
-    return debug.getinfo(2, "S").source:sub(2)
+	local str = debug.getinfo(2, "S").source:sub(2)
+	local strdir = str:match("(.*[/\\])")
+	--print(strdir)
+    return strdir
 end
 
-
+-- Checks if Script is in the Scripts folder, if not then return false
 local function ScriptIsInstalled()
     local script_path = script_path()
-    if platform == "Windows" then
-        local match1 = script_path:find("\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts")
-        local match2 = script_path:find("\\Blackmagic Design\\DaVinci Resolve\\Fusion\\Scripts")
-        return match1 ~= nil or match2 ~= nil
-    elseif platform == "Mac" then
-        local match1 = script_path:find("/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts")
-        return match1 ~= nil
-    else
-        local match1 = script_path:find("resolve/Fusion/Scripts")
-        local match2 = script_path:find("resolve/Fusion/Scripts")
-        local match3 = script_path:find("/DaVinciResolve/Fusion/Scripts")
-        return match1 ~= nil or match2 ~= nil or match3 ~= nil
-    end
+    local match = script_path:find(fuPath)
+    return match ~= nil
 end
 
 local SCRIPT_INSTALLED = ScriptIsInstalled()
 
-local function showMessage(title,str)
+-- Controls all message windows 
+local function showMessage(size,title,str)
+	local width = width
+	local height = height - size
 	local msgWnd = disp:AddWindow(
 	{
 		ID = "MsgWindow",
 		WindowTitle = "Anim Utility | Message",
-		Geometry = { hPos,vPos + 162.5,width,height - 325 },
+		Geometry = { AnimUtility_HVpos_x,AnimUtility_HVpos_y + (height/2),width,height },
         MinimumSize = {200, 50},
         ui:VGroup{
             ID = "root",
             ui:VGroup{
-                ui:Label{ID = 'msg', Text = '', Weight = 0.25, WordWrap = true, Alignment = { AlignHCenter = true, AlignTop = true }, StyleSheet = [[QLabel { color: rgb(255, 255, 255); font-weight: bold; }]]},
-                ui:Button{ID = 'OK', Text = 'OK', Weight = 0.05},
+                ui:Label{ID = 'msg', Text = '', Weight = 0.25, WordWrap = true, Alignment = { AlignHCenter = true, AlignTop = true}, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);font-weight: bold;]]},
+                ui:Button{ID = 'OK', Text = 'OK', Weight = 0.05, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
             }
         }
     }
 )
-local msgWnditm = msgWnd:GetItems()
-function msgWnd.On.MsgWindow.Close(ev)
-	disp:ExitLoop()
-end
-function msgWnd.On.OK.Clicked(ev)
-	disp:ExitLoop()
-end
-	msgWnditm.MsgWindow.WindowTitle =	"Anim Utility | " .. title
-	msgWnditm.msg.Text = str
-	msgWnd:Show()
-	disp:RunLoop()
-	msgWnd:Hide()
-end
-
---- Check if a file or directory exists in this path
-function exists(file)
-	local ok, err, code = os.rename(file, file)
-	if not ok then
-	   if code == 13 then
-		  -- Permission denied, but it exists
-		  return true
-	   end
+	local msgWnditm = msgWnd:GetItems()
+	function msgWnd.On.MsgWindow.Close(ev)
+		disp:ExitLoop()
 	end
-	return ok, err
- end
- --- Check if a directory exists in this path
-function isdir(path)
-	-- "/" works on both Unix and Windows
-	return exists(path.."/")
- end
-
-local function CopyFile(source, target)
-    local source_file = io.open(source, "r")
-    local contents = source_file:read("*a")
-    source_file:close()
-
-    local target_file = io.open(target, "w")
-    if target_file == nil then
-        return false
-    end
-    target_file:write(contents)
-    target_file:close()
-
-    return true
+	function msgWnd.On.OK.Clicked(ev)
+		disp:ExitLoop()
+	end
+		msgWnditm.MsgWindow.WindowTitle =	"Anim Utility | " .. title
+		msgWnditm.msg.Text = str
+		msgWnd:Show()
+		disp:RunLoop()
+		msgWnd:Hide()
 end
 
-
-local function InstallScript()
-    local source_path = script_path()
+-- On First Open, if user selects install, move Anim Utility Folder to Scripts folder
+local function InstallScript() 
+	local source_path = script_path()
     local target_path = nil
-    if platform == "Windows" then
-        target_path = os.getenv("APPDATA") .. "\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\FusionPixelStudio\\Anim Utility\\"
-		if not isdir(target_path) then
-			target_path = nil
-		end
-    elseif platform == "Mac" then
-        target_path = os.getenv("HOME") .. "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp/FusionPixelStudio/Anim Utility/"
-		if not isdir(target_path) then
-			target_path = nil
-		end
-    else
-        target_path = os.getenv("HOME") .. "/.local/share/DaVinciResolve/Fusion/Scripts/Comp/FusionPixelStudio/Anim Utility/"
-		if not isdir(target_path) then
-			target_path = nil
-		end
-    end
-	--print(target_path)
-	if target_path == nil then
-		--print('No Anim Utility Folder')
-		if platform == "Windows" then
-			target_path = os.getenv("APPDATA") .. "\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\FusionPixelStudio\\"
-			if not isdir(target_path) then
-				target_path = nil
-			end
-		elseif platform == "Mac" then
-			target_path = os.getenv("HOME") .. "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp/FusionPixelStudio/"
-			if not isdir(target_path) then
-				target_path = nil
-			end
+	local dirExistsMain = bmd.direxists(folderMain)
+	local dirExistsRoot = bmd.direxists(folderRoot)
+	local downloads = source_path:match("(.*[/\\])")
+	if not dirExistsMain then
+		if not dirExistsRoot then
+			bmd.createdir(folderRoot)
+			target_path = folderMain
+			print('Neither Folder Present')
+			--print(source_path)
+			--print(target_path)
 		else
-			target_path = os.getenv("HOME") .. "/.local/share/DaVinciResolve/Fusion/Scripts/Comp/FusionPixelStudio/"
-			if not isdir(target_path) then
-				target_path = nil
-			end
-		end
-		if target_path ~= nil then
-			local script_name = source_path:match(".*[/\\](.*)")
-			if platform == "Windows" then
-				bmd.createdir(target_path .. "Anim Utility\\")
-				target_path = target_path .. "Anim Utility\\" .. script_name
-			elseif platform == "Mac" then
-				bmd.createdir(target_path .. "Anim Utility/")
-				target_path = target_path .. "Anim Utility/" .. script_name
-			else
-				bmd.createdir(target_path .. "Anim Utility/")
-				target_path = target_path .. "Anim Utility/" .. script_name
-			end
-
-    		-- Copy the file.
-    		local success = CopyFile(source_path, target_path)
-    		if not success then
-       		showMessage("Failed to Install","Failed to install\nAnim Utility could not be installed automatically. Please manually copy to the Scripts/Comp folder.")
-        		return false
-    		end
-    		return true
-		else
-			--print('Neither Folder Present')
-			local script_name = source_path:match(".*[/\\](.*)")
-			if platform == "Windows" then
-				target_path = os.getenv("APPDATA") .. "\\Blackmagic Design\\DaVinci Resolve\\Support\\Fusion\\Scripts\\Comp\\"
-				if not isdir(target_path) then
-					target_path = nil
-				end
-			elseif platform == "Mac" then
-				target_path = os.getenv("HOME") .. "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp/"
-				if not isdir(target_path) then
-					target_path = nil
-				end
-			else
-				target_path = os.getenv("HOME") .. "/.local/share/DaVinciResolve/Fusion/Scripts/Comp/"
-				if not isdir(target_path) then
-					target_path = nil
-				end
-			end
-			if platform == "Windows" then
-				bmd.createdir(target_path .. "FusionPixelStudio\\Anim Utility\\")
-				target_path = target_path .. "FusionPixelStudio\\Anim Utility\\" .. script_name
-			elseif platform == "Mac" then
-				bmd.createdir(target_path .. "FusionPixelStudio/Anim Utility/")
-				target_path = target_path .. "FusionPixelStudio/Anim Utility/" .. script_name
-			else
-				bmd.createdir(target_path .. "FusionPixelStudio/Anim Utility/")
-				target_path = target_path .. "FusionPixelStudio/Anim Utility/" .. script_name
-			end
-			
-			
-
-    		-- Copy the file.
-    		local success = CopyFile(source_path, target_path)
-    		if not success then
-       		showMessage("Failed to Install","Failed to install\nAnim Utility could not be installed automatically. Please manually copy to the Scripts/Comp folder.")
-        		return false
-    		end
-    		return true
+			--bmd.createdir(folderMain)
+			target_path = folderMain
+			print('No Anim Utility Folder')
+			--print(source_path)
+			--print(target_path)
 		end
 	else
-		local script_name = source_path:match(".*[/\\](.*)")
-	target_path = target_path .. script_name
-
-    -- Copy the file.
-    local success = CopyFile(source_path, target_path)
-    if not success then
-        showMessage("Failed to Install","Failed to install\nAnim Utility could not be installed automatically. Please manually copy to the Scripts/Comp folder.")
-        return false
-    end
-    return true
+		target_path = folderMain
+		--print(source_path)
+		--print(target_path)
 	end
-
-    
+	local success = os.rename(source_path, target_path)
+	
+    		if not success then
+       		showMessage(310,"Failed to Install","Failed to install\nPlease manually move to the /Blackmagic Design/Davinci Resolve/Fusion/Scripts/Comp/FusionPixelStudio folder. Delete your Anim Utility Folder.")
+        		return false
+			end
+    		return true
 end
 
 local function animUtilityPoint(uniqueName)
@@ -2736,8 +2635,7 @@ local function CreateToolWindow()
 	{
 		ID = "MainWindow",
 		WindowTitle = "Anim Utility | " .. nodeName,
-		Geometry = { hPos,vPos,width,height },
-        MinimumSize = {300, 450},
+		Geometry = { AnimUtility_HVpos_x,AnimUtility_HVpos_y,width,height },
 		Spacing = 0,
 		ui:VGroup{
 		ui:VGroup{
@@ -2749,15 +2647,28 @@ local function CreateToolWindow()
             ID = "root",
             ui:HGroup{
 				Weight = 0.02,
-                ui:Label{ID = 'ControlsLabel', Text = 'Node Controls (Click a Control to Select)', Weight = 0.02},
-				ui:Button{ID = 'Reload', Text = 'Reload', Weight = 0.005},
+				MinimumSize = {width, 10},
+                ui:Label{ID = 'ControlsLabel', Text = 'Node Controls (Click a Control to Select)', Weight = 0.0005, MaximumSize = { width-95, 24 }, MinimumSize = { width-95, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);font-weight: bold;]]},
+				ui:Button{ID = 'Reload', Text = '↺', Weight = 0.001, ToolTip = "Reload Controls List",Font = ui:Font{PixelSize = 25,},Flat = true, MaximumSize = { width-280, 24 }, MinimumSize = { width-280, 24 }, StyleSheet = [[font-family: Amaranth;color:rgb(255,255,255);]]}
 			},
 			ui:VGroup{
-				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01},
-                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25},
-                ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name for Modifiers', Weight = 0.03},
-                ui:Button{ID = 'Paste', Text = 'Paste Anim Utility', Weight = 0.02},
+				Weight = 0.5,
+				MinimumSize = {width, 100},
+				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01, MaximumSize = { width, 24 }, MinimumSize = { width, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
+                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25, MaximumSize = { width, 250 }, MinimumSize = { width, 250 }, StyleSheet = [[background-color:#1f1f1f;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
+				ui:Label{Weight = 0, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = 'font-size = 5px'},
+				ui:Label{ID = 'UniqueNameLabel', Text = 'Unique Name for Anim Utility Modifiers', Weight = 0.01, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;font-weight: bold;color:rgb(255,255,255);]]},
+                ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name', Weight = 0.03, MaximumSize = { width, 34 }, MinimumSize = { width, 34 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
+                ui:Button{ID = 'Paste', Text = 'Paste Anim Utility', Weight = 0.02, MaximumSize = { width, 34 }, MinimumSize = { width, 34 }, StyleSheet = [[QPushButton{border: 1px solid rgb(164,66,41);max-height: 28px;border-radius: 14px;background-color: rgb(164,66,41);color: rgb(220, 220, 220);min-height: 28px;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);}QPushButton:hover{border: 2px solid rgb(235,152,79);background-color: rgb(235,152,79);}]]},
+				ui:Label{Weight = 0,FrameStyle = 4, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = 'font-size = 2px'},
             },
+			ui:HGroup{
+				Weight = 0.02,
+				MinimumSize = {width, 20},
+				ui:Button{ID = 'YT', Text = 'YouTube Tutorial', MaximumSize = { width-193, 24 }, MinimumSize = { width-193, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
+				ui:Label{Weight = 0.05,},
+				ui:Button{ID = 'KoFi', Text = 'More Fusion Goodies', MaximumSize = { width-193, 24 }, MinimumSize = { width-193, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]}
+			}
         },
 	}
     }
@@ -2765,7 +2676,16 @@ local function CreateToolWindow()
 mainWnditm = mainWnd:GetItems()
 
 function mainWnd.On.MainWindow.Close(ev)
+	fusion:SetData("AnimUtility_HVpos", mainWnditm.MainWindow.Geometry)
 	disp:ExitLoop()
+end
+
+function mainWnd.On.YT.Clicked(ev)
+	bmd.openurl('https://www.youtube.com/channel/UC_OnaF0lKfexzEL9Yminymw')
+end
+
+function mainWnd.On.KoFi.Clicked(ev)
+	bmd.openurl('https://www.ko-fi.com/asherroland')
 end
 
 function BuildSearchKey(t, key)
@@ -2780,21 +2700,25 @@ end
 
 local control_type
 
-
+local page = ""
 local function fillTree()
+	comp:SetData("tool_control_pages", {})
+	local tool_control_pages = comp:GetData("tool_control_pages")
 	NodeControls = {}
 	local tool = comp.ActiveTool
-    local x = tool:GetInputList()
+    local x = tool:GetInputList(Number)
 	mainWnditm.NodeControls:Clear()
     for _, v in ipairs(x) do
 		control_type = v:GetAttrs().INPS_DataType
         local control = v:GetAttrs().INPS_ID 
 		local controlName = v:GetAttrs().INPS_Name
+		page = v:GetAttrs().INPS_ICS_ControlPage
 		Controls = {}
 		Controls.ID = control
 		Controls.Name = controlName
 		Controls.Type = control_type
 		table.insert(NodeControls, Controls)
+		table.insert(tool_control_pages, page)
     end
 	for _, c in ipairs(NodeControls) do
 		local it = mainWnditm.NodeControls:NewItem()
@@ -2808,6 +2732,8 @@ local function fillTree()
 		c._TreeItem = it
 		c._Hidden = false
 	end
+	comp:SetData("tool_control_pages", tool_control_pages)
+	--print(table.unpack(comp:GetData("tool_control_pages")))
 	for i,v in ipairs(NodeControls) do
 
 		local searchkey = {}
@@ -2849,7 +2775,7 @@ local controlType
 function mainWnd.On.NodeControls.ItemClicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
-		showMessage("No Selected Node","Please make sure you have a node selected while using this tool!")
+		showMessage(355,"No Selected Node","Please make sure you have a node selected while using this tool!")
 	else
 		Control = ev.item.Text[0]
 		controlType = ev.item.Text[2]
@@ -2869,7 +2795,7 @@ mainWnditm.NodeControls.ColumnWidth[0] = 200
 function mainWnd.On.Reload.Clicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
-		showMessage("No Selected Node","No Node Selected!\nPlease select a node before Reloading!")
+		showMessage(355,"No Selected Node","No Node Selected!\nPlease select a node before Reloading!")
 	else
 		nodeName = node:GetAttrs().TOOLS_Name
 		mainWnditm.SearchBar:Clear()
@@ -2883,11 +2809,12 @@ function mainWnd.On.Reload.Clicked(ev)
 end
 
 function mainWnd.On.Paste.Clicked(ev)
+	fusion:SetData("AnimUtility_HVpos", mainWnditm.MainWindow.Geometry)
     local name = (tostring(mainWnditm.UniqueName.Text))
 	node = comp.ActiveTool
 	nodeName = node:GetAttrs().TOOLS_Name
     if name == '' then
-        showMessage("No Unique Name","Please Write Out a Unique Name.")
+        showMessage(355,"No Unique Name","Please Write Out a Unique Name.")
     else
 			if controlType == 'Number' then
 				comp:Paste(bmd.readstring(animUtilityNumber(name)))
@@ -2899,7 +2826,10 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
+		--showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
+		mainWnditm.Paste.Text = "Success!"
+		bmd.wait(5)
+		mainWnditm.Paste.Text = "Paste Anim Utility"
 	elseif controlType == 'Point' then
 		comp:Paste(bmd.readstring(animUtilityPoint(name)))
 		local nodestr = tostring(nodeName)
@@ -2910,7 +2840,10 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
+		--showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
+		mainWnditm.Paste.Text = "Success!"
+		bmd.wait(5)
+		mainWnditm.Paste.Text = "Paste Anim Utility"
 	else 
 		comp:Paste(bmd.readstring(animUtilityNumber(name)))
 				local nodestr = tostring(nodeName)
@@ -2921,7 +2854,7 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		showMessage("Pasted Succesfully","Pasted " .. name .. " Anim Utility.\nYou did not select a control.\nPlease do 'Connect To' on the control you want to animate and connect to " .. Modifierstr..".")
+		showMessage(305,"Pasted Succesfully","Pasted " .. name .. " Anim Utility.\nYou did not select a control.\nPlease do 'Connect To' on the control you want to animate and connect to " .. Modifierstr..".")
 	end
     end
 end
@@ -2972,10 +2905,11 @@ end
     mainWnd:Show()
     disp:RunLoop()
     mainWnd:Hide()
+	print("Bye!")
 end
 
 if type(node) ~= "userdata" then
-    showMessage("No Selected Node","NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
+    showMessage(355,"No Selected Node","NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
 else
 	node = comp.ActiveTool
 	nodeName = node:GetAttrs().TOOLS_Name
