@@ -20,7 +20,7 @@ else
     AnimUtility_HVpos_y = 350
 end
 
-local width, height = 370,450
+local width, height = 370,540
 
 local ui = fu.UIManager
 local disp = bmd.UIDispatcher(ui)
@@ -35,11 +35,7 @@ local NodeControls = {}
 local fuPath = comp:MapPath('Scripts:/')
 local folderMain = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/')
 local folderRoot = comp:MapPath('Scripts:/Comp/FusionPixelStudio/')
-local intfile1 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/About Anim Utility.lua')
-local intfile2 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/Anim Utility GUI.lua')
-local intfile3 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/FusionPixel.png')
-local intfile4 = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/')
-
+local icons = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/')
 -- Gets where Script is on first use
 local function script_path()
 	local str = debug.getinfo(2, "S").source:sub(2)
@@ -124,92 +120,83 @@ local function InstallScript()
 			end
     		return true
 end
-
+-- Anim Utility Modifiers for Point Values 
 local function animUtilityPoint(uniqueName)
 	local s =[[
 		{
 			Tools = ordered() { ]]
 			.. uniqueName .. [[_VECTOR = Vector {
 				NameSet = true,
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					}
-				},
 				Inputs = {
 					Distance = Input {
-						SourceOp = "]].. uniqueName .. [[_USER",
+						SourceOp = "]].. uniqueName .. [[_CONTROLS",
 						Source = "Value",
 					},
 				},
 			},]]
-			.. uniqueName .. [[_ANIMINCURVES = LUTLookup {
+			.. uniqueName .. [[_INCURVES = LUTLookup {
 				NameSet = true,
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					},
-				},
 				Inputs = {
-					Curve = Input { Value = FuID { "Custom" }, },
-					EaseIn = Input { Value = FuID { "Quint" }, },
-					EaseOut = Input { Value = FuID { "Sine" }, },
+					Curve = Input { Value = FuID { "Easing" }, },
+					EaseIn = Input { Value = FuID { "Sine" }, },
+					EaseOut = Input { Value = FuID { "Quad" }, },
 					Lookup = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMINCURVESLookup",
+						SourceOp = "]].. uniqueName .. [[_INCURVESLookup",
 						Source = "Value",
 					},
 					Source = Input { Value = FuID { "Duration" }, },
-					Scale = Input { Expression = "iif(]] .. uniqueName .. [[_USER.IN == 1, 1, 0)", },
-					Offset = Input { Expression = "iif(]] .. uniqueName .. [[_USER.IN == 1, 0, 1)", },
+					Scaling = Input { Value = 0, },
+					Scale = Input { Expression = "iif(]].. uniqueName .. [[_CONTROLS.In == 1, 1, 0)", },
+					Offset = Input { Expression = "iif(]].. uniqueName .. [[_CONTROLS.In == 1, 0, 1)", },
+					Timing = Input { Value = 0, },
 					TimeScale = Input {
-						Value = 12.4166666666667,
-						Expression = "(comp.RenderEnd-comp.RenderStart)/]] .. uniqueName .. [[_USER.ANIMLENGTHIN",
+						Value = 4.95833333333333,
+						Expression = "(comp.RenderEnd-comp.RenderStart)/]].. uniqueName .. [[_CONTROLS.InAnimLength",
 					},
-					TimeOffset = Input { Expression = "]] .. uniqueName .. [[_USER.ANIMOFFSETIN/(comp.RenderEnd-comp.RenderStart)", }
+					TimeOffset = Input { Expression = "]].. uniqueName .. [[_CONTROLS.InAnimStart/(comp.RenderEnd-comp.RenderStart)", }
 				},
 				UserControls = ordered() {
+					AnimUtilityLogo = {
+						INP_Integer = false,
+						INPID_InputControl = "LabelControl",
+						IC_ControlPage = -1,
+						LBLC_MultiLine = true,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "<center><img src='data:image/png;base64,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> ",
+						INP_Passive = true,
+						IC_NoLabel = true,
+						IC_NoReset = true,
+					},
 					HiddenControls = {
-						INP_Integer = true,
+						INP_Integer = false,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
 						LBLC_NumInputs = 12,
 						INP_External = false,
 						LINKID_DataType = "Number",
-						IC_Visible = false,
+						LINKS_Name = "Hidden Controls",
 						INP_Passive = true,
 						ICS_ControlPage = "Controls",
-						LINKS_Name = "Hidden Controls",
+						IC_Visible = false,
 					},
 					CurveShape = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 8,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_MinAllowed = 0,
 						INP_MinScale = 0,
-						INP_External = false,
+						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						INP_Passive = true,
-						LBLC_NestLevel = 0,
-						ICS_ControlPage = "Controls",
+						INP_External = false,
 						LINKS_Name = "Curve Shape"
 					},
 					Source = {
-						{ CCS_AddString = "Duration" },
-						{ CCS_AddString = "Transition" },
-						{ CCS_AddString = "Custom" },
+						ICS_ControlPage = "Controls",
 						INP_Integer = false,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						CC_LabelPosition = "Horizontal",
-						INPID_InputControl = "ComboControl",
 						LINKS_Name = "Source",
 					},
 					Mirror = {
@@ -241,18 +228,14 @@ local function animUtilityPoint(uniqueName)
 					Scaling = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 4,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_MinAllowed = 0,
 						INP_MinScale = 0,
-						INP_External = false,
+						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						INP_Passive = true,
-						LBLC_NestLevel = 0,
-						ICS_ControlPage = "Controls",
+						INP_External = false,
 						LINKS_Name = "Scaling"
 					},
 					Scale = {
@@ -309,18 +292,14 @@ local function animUtilityPoint(uniqueName)
 					Timing = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 2,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_MinAllowed = 0,
 						INP_MinScale = 0,
-						INP_External = false,
+						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						INP_Passive = true,
-						LBLC_NestLevel = 0,
-						ICS_ControlPage = "Controls",
+						INP_External = false,
 						LINKS_Name = "Timing"
 					},
 					TimeScale = {
@@ -349,54 +328,52 @@ local function animUtilityPoint(uniqueName)
 					}
 				}
 			},]]
-			.. uniqueName .. [[_ANIMINCURVESLookup = LUTBezier {
+			.. uniqueName .. [[_INCURVESLookup = LUTBezier {
 				KeyColorSplines = {
 					[0] = {
-						[0] = { 0, RH = { 0.333333333333333, 0 }, Flags = { Linear = true } },
-						[1] = { 1, LH = { 0.666666666666667, 1 } }
+						[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+						[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 					}
 				},
 				SplineColor = { Red = 255, Green = 255, Blue = 255 },
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					}
-				},
-			},]]
-			.. uniqueName .. [[_ANIMOUTCURVES = LUTLookup {
+			},
+			]].. uniqueName .. [[_OUTCURVES = LUTLookup {
 				NameSet = true,
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					},
-				},
 				Inputs = {
-					Curve = Input { Value = FuID { "Custom" }, },
-					EaseIn = Input { Value = FuID { "Sine" }, },
-					EaseOut = Input { Value = FuID { "Quint" }, },
+					Curve = Input { Value = FuID { "Easing" }, },
+					EaseIn = Input { Value = FuID { "Quad" }, },
+					EaseOut = Input { Value = FuID { "Sine" }, },
 					Lookup = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVESLookup",
+						SourceOp = "]].. uniqueName .. [[_OUTCURVESLookup",
 						Source = "Value",
 					},
 					Source = Input { Value = FuID { "Duration" }, },
 					Scale = Input {
 						Value = -1,
-						Expression = "iif(]] .. uniqueName .. [[_USER.OUT == 1, -1, 0)",
+						Expression = "iif(]].. uniqueName .. [[_CONTROLS.Out == 1, -1, 0)",
 					},
 					TimeScale = Input {
-						Value = 12.4166666666667,
-						Expression = "(comp.RenderEnd-comp.RenderStart)/]] .. uniqueName .. [[_USER.ANIMLENGTHOUT",
+						Value = 4.95833333333333,
+						Expression = "(comp.RenderEnd-comp.RenderStart)/]].. uniqueName .. [[_CONTROLS.OutAnimLength",
 					},
 					TimeOffset = Input {
-						Value = 0.919463087248322,
-						Expression = "iif(]] .. uniqueName .. [[_USER.OFFSETSWITCH == 1, (]] .. uniqueName .. [[_USER.ANIMOFFSETOUT/(comp.RenderEnd-comp.RenderStart)),1-((]] .. uniqueName .. [[_USER.ANIMLENGTHOUT+]] .. uniqueName .. [[_USER.ANIMOFFSETOUT)/(comp.RenderEnd-comp.RenderStart)))",
+						Value = 0.798319327731092,
+						Expression = "1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))",
 					}
 				},
 				UserControls = ordered() {
+					AnimUtilityLogo = {
+						INP_Integer = false,
+						INPID_InputControl = "LabelControl",
+						IC_ControlPage = -1,
+						LBLC_MultiLine = true,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "<center><img src='data:image/png;base64,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> ",
+						INP_Passive = true,
+						IC_NoLabel = true,
+						IC_NoReset = true,
+					},
 					HiddenControls = {
 						INP_Integer = false,
 						LBLC_DropDownButton = true,
@@ -412,29 +389,20 @@ local function animUtilityPoint(uniqueName)
 					CurveShape = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 8,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_External = false,
 						INP_MinScale = 0,
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LBLC_NestLevel = 0,
 						INP_Passive = true,
+						INP_External = false,
 						LINKS_Name = "Curve Shape"
 					},
 					Source = {
-						{ CCS_AddString = "Duration" },
-						{ CCS_AddString = "Transition" },
-						{ CCS_AddString = "Custom" },
+						ICS_ControlPage = "Controls",
 						INP_Integer = false,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						CC_LabelPosition = "Horizontal",
-						INPID_InputControl = "ComboControl",
 						LINKS_Name = "Source",
 					},
 					Mirror = {
@@ -446,8 +414,8 @@ local function animUtilityPoint(uniqueName)
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
 						CBC_TriState = false,
+						ICD_Width = 0.5,
 						LINKS_Name = "Mirror"
 					},
 					Invert = {
@@ -459,25 +427,21 @@ local function animUtilityPoint(uniqueName)
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
 						CBC_TriState = false,
+						ICD_Width = 0.5,
 						LINKS_Name = "Invert"
 					},
 					Scaling = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 4,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_External = false,
 						INP_MinScale = 0,
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LBLC_NestLevel = 0,
 						INP_Passive = true,
+						INP_External = false,
 						LINKS_Name = "Scaling"
 					},
 					Scale = {
@@ -514,8 +478,8 @@ local function animUtilityPoint(uniqueName)
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
 						CBC_TriState = false,
+						ICD_Width = 0.5,
 						LINKS_Name = "Clip Low"
 					},
 					ClipHigh = {
@@ -527,25 +491,21 @@ local function animUtilityPoint(uniqueName)
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
 						CBC_TriState = false,
+						ICD_Width = 0.5,
 						LINKS_Name = "Clip High"
 					},
 					Timing = {
 						INP_MaxAllowed = 1,
 						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 2,
+						ICS_ControlPage = "Controls",
 						INP_MaxScale = 1,
 						INP_Default = 1,
-						INP_External = false,
 						INP_MinScale = 0,
 						INP_MinAllowed = 0,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LBLC_NestLevel = 0,
 						INP_Passive = true,
+						INP_External = false,
 						LINKS_Name = "Timing"
 					},
 					TimeScale = {
@@ -573,292 +533,240 @@ local function animUtilityPoint(uniqueName)
 						LINKS_Name = "Time Offset"
 					}
 				}
-			},]]
-			.. uniqueName .. [[_ANIMOUTCURVESLookup = LUTBezier {
+			},
+			]].. uniqueName .. [[_OUTCURVESLookup = LUTBezier {
 				KeyColorSplines = {
 					[0] = {
-						[0] = { 0, RH = { 0.333333333333333, 0 }, Flags = { Linear = true } },
-						[1] = { 1, LH = { 0.666666666666667, 1 } }
+						[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+						[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 					}
 				},
 				SplineColor = { Red = 255, Green = 255, Blue = 255 },
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					}
-				},
-			},]]
-			.. uniqueName .. [[_USER = PublishNumber {
+			},
+			]].. uniqueName .. [[_CONTROLS = PublishNumber {
 				CtrlWZoom = false,
 				NameSet = true,
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					},
-				},
 				Inputs = {
-					AnimIn = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMINCURVES",
+					CommentsNest = Input { Value = 0, },
+					FrameRenderScriptNest = Input { Value = 0, },
+					Value = Input { Expression = "StartNumber + (MasterAnim*(RestNumber-StartNumber))", },
+					InCurves = Input {
+						SourceOp = "]].. uniqueName .. [[_INCURVES",
 						Source = "Value",
 					},
-					AnimOut = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVES",
+					OutCurves = Input {
+						SourceOp = "]].. uniqueName .. [[_OUTCURVES",
 						Source = "Value",
 					},
 					MasterAnim = Input {
-						SourceOp = "]] .. uniqueName .. [[_CALCMAIN",
-						Source = "Result",
+						Value = 1,
+						Expression = "InCurves+OutCurves",
 					},
-					From0 = Input { Expression = "MasterAnim*INPUTAMOUNT", },
-					FromINPUT = Input { Expression = "-(MasterAnim-1)*INPUTAMOUNT", },
-					FromCUSTOM = Input { Expression = "CUSTOMINPUTSTART + (MasterAnim*(CUSTOMINPUTEND-CUSTOMINPUTSTART))", },
-					Value = Input { Expression = "From0", },
-					IN = Input { Value = 1, },
-					OUT = Input { Value = 1, },
-					INPUTOPTIONS = Input { Value = 1, },
-					ANIMLENGTHIN = Input { Value = 24, },
-					ANIMLENGTHOUT = Input { Value = 24, },
-					CURRENTFRAME = Input { Expression = "(comp.RenderStart-comp.RenderStart)+time", },
-					OFFSETINSTART = Input {
-						Value = -24,
-						Expression = "(comp.RenderStart-comp.RenderStart)+time-ANIMLENGTHIN",
-					},
-					OFFSETOUTSTART = Input {
-						Value = 274,
-						Expression = "comp.RenderEnd-time-ANIMLENGTHOUT",
-					},
-					OTHERTHINGS = Input { Value = 1, },
-					DETAILS = Input { Value = "Based on MiniAnimator by MrAlexTech\nBased Anim Logic From Patrick Stirling's Subtitles Pro\n------------------\nAnim Utility by AsherRoland", },
+					Start_EndSeperatedHider = Input { Value = 1, },
+					SeperaterButtonHider = Input { Value = 1, },
+					FramesHider = Input { Value = 1, },
+					CalcsEndHider1 = Input { Value = 1, },
+					CalcsEndHider2 = Input { Value = 1, },
+					CalcStartButtHider = Input { Value = 1, },
 				},
 				UserControls = ordered() {
-					HiddenControls = {
-						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 7,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						INP_Passive = true,
-						IC_Visible = false,
-						LINKS_Name = "Hidden Controls",
-					},
-					AnimIn = {
-						INPID_InputControl = "SliderControl",
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "AnimIn",
-					},
-					AnimOut = {
-						INPID_InputControl = "SliderControl",
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "AnimOut",
-					},
-					MasterAnim = {
-						INPID_InputControl = "SliderControl",
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "MasterAnim",
-					},
-					From0 = {
-						INPID_InputControl = "ScrewControl",
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "From 0",
-					},
-					FromINPUT = {
-						INPID_InputControl = "ScrewControl",
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "From INPUT",
-					},
-					FromCUSTOM = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						INPID_InputControl = "ScrewControl",
-						INP_MinScale = 0,
-						INP_MaxScale = 1,
-						LINKS_Name = "From CUSTOM",
-					},
 					Value = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
+						INPID_InputControl = "ScrewControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						INPID_InputControl = "ScrewControl",
-						INP_MinScale = 0,
-						INP_MaxScale = 1,
-						LINKS_Name = "Value",
+						ICS_ControlPage = "Common",
+						LINKS_Name = "Value"
 					},
-					TUTORIAL = {
-						ICD_Width = 1,
-						INP_Integer = true,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "ButtonControl",
-						LINKS_Name = "TUTORIAL",
-					},
-					Sep5 = {
-						INP_External = false,
-						INPID_InputControl = "SeparatorControl",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "",
-					},
-					CUSTOMCONTROLS = {
-						ICS_ControlPage = "Controls",
+					InCurves = {
 						INP_Integer = false,
-						LBLC_DropDownButton = false,
 						LINKID_DataType = "Number",
-						INP_External = false,
-						INP_Passive = true,
+						ICS_ControlPage = "Common",
+						INPID_InputControl = "ScrewControl",
+						LINKS_Name = "InCurves",
+					},
+					OutCurves = {
+						INP_Integer = false,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Common",
+						INPID_InputControl = "ScrewControl",
+						LINKS_Name = "OutCurves",
+					},
+					MasterAnim = {
+						INP_Integer = false,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Common",
+						INPID_InputControl = "ScrewControl",
+						LINKS_Name = "MasterAnim",
+					},
+					AnimUtilityLogo = {
+						INP_Integer = false,
 						INPID_InputControl = "LabelControl",
-						LINKS_Name = "<p style=\"color:yellow;\">CUSTOM CONTROLS</p>",
+						IC_ControlPage = -1,
+						LBLC_MultiLine = true,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "<center><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABNCAYAAAAcolk+AAAACXBIWXMAAAEmAAABJgFf+xIoAAAgAElEQVR4nO2dd5xeVZ3/3+ece586fSaNEEggkRKqIq5SVAJKU0KxQMTFRiyr/Ox1XdeyuoptXVeCshYIzQhhQUEgKwrogkgLhCCB0NJnMu2p995zzu+Pc+fJTOa5z8wkGZDd+bx4wjz3nnbPc+/3fvtXWGuZwhSmMIWXAuSLvYApTGEKUxgvpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMvBd6wv6VnzYmLIt654T0o6j7yWldS1f2TWTMvpu+2G/LfS11x/RzvW2Lv9Ex7vXd8LnIBAWVdF54ad125rdG7Fv3ssVLZeusS4TyE8dV+Wk/bjn1Hy/c+Xj3ssXny9ZZv0jqK9LNF7e9+WufHO/6k9B3/aeMjSp1912m8ze2vvnrb96d8ZefuHAAyCY2sPayJavWvH+cY4WNzi+5/VE/btcNtE5gmRPDsDWPd03DsfzEhQ8DBzUYf9OSVWv2meiylp+4sAIk3qNY+7Ylq9Zct/zEhUuBf5/o+BNAGcgAde+reC3PLlm1Zv/xDLb8xIX/BZzSqM0LRrB6r/6Qlp4nRX4a+SPOQqTyo9rYoOiV7rv6W8D7xjPm9p++YzmZ5vP86fPx9n0lXue8UW1K913V3vfLj3657S3f/WLD9V3zkR4TFDpUUxdNx4yiKzWUH75hxI3Se+1HjDdtgUgvOL7u/ACVNTdDOv9OYMTAfSsuMqppulBte5M97IxR/WxQpPTg9Z8Adplg9V/7kQjlKZltI/uqd9ado3jfVafv6vgA15z6cuOl0ok3rcWig+A9QEOCdc3pR30OY77mpdKJbawx45pzd+HWXD3rmtOPGsCYTyatyQJoPer41ae+QnupdKIEYxGYKJgzkTVdc/pRr8GYuxvujzXoMPjSNae/4mteKn3gRMafEIQEa5obNbFCYqNgv/EMd/VpR0VeKp1IhG3876QTrL6rP7DVWjtN+GlEpg1MRGruqxLbl+5f8R7GIFjdyxa/RuY77xK5FmEj9+LzOufh73XIqLZNr7+IwVu/8Y9AXYLVvWzxN2XLzE9iDdJPA7buOEOoPPZbAHqv+UBkg0AhJcJLJ84PEDzzZ0xUrn3vverCyBqjQCIEyObpiX2rT/ye7mWL2ybKdfb/8sPPG2tmYw1CZsgdcVbiHMX7rt6lB/9XZx+31Bp9iUpn6jcQYI3FBJUxx1px9rFPKz+1b2IDKbBhhNUhK858jVHpzOQQKwEYQxRUSbd2ZDAm+WURrymKiegQVpx1jPHSDYipkOhx7Mlw/OrsY/+g/NRxDdcSaXRQJdXafrAwNpkD211IAWYMh3MpMEGIUYrlJx0SLbntkURas+KsY4yXSiXvlxSYMCSslM2kEqzeKy80CCGE8hBCYjGk57++YZ/0/ONF97LFR3QtXflgvfODt/1rJHJtylrTgA/dAdU8nfT84+i77hOm7ayLR7zxBm79lha5dkkUggSr7bjG7PnF3xvpZ8W4Go+Y718/F21+7KtIT4CtMdJCJv8M6fnHYUrbu5kAN9y7/EIjfF9IPKwChGxIhGV6NLc7FlYuOfEhmUodlnReSLChRgflpCbDxjpBqwbciJACHVQhm8WTTdBIBNkNCAkmjNDVCpm2DqwlkYMQUqCrVYaTqhve8YZ9jdbrk4ipAKyw6PLEiNX1S06IZAPuQ0jQQYAlItPRgTUNxMXdhGOsGpwHrAAbhFhlEEYjhUxcz/XnLmr48nH7HGGiCktuXa0mhWD13/QVLX0pEQKhFAIPUjkwhvS8ZO4KIHPgCVTW3vYT4KgRY/76S38QUh4nxMTtBNnDz6S6/h7R96uP/bjt7O+8r/+mfy4JQVaoFELuIKaMN0pJiIk/MMamMOHXkPEvHg9hjUa1zEjslpr3asqrbxrXDdh/05e19JXEU9gwRKQ9RCpPas4rGnec4J7e+O7TtPRSiZ2U8omqZQzR2GNdcJqRXvINK5VPVC7gN7eAnrwwMqV8wmoRC2Tau2gUsiY9n7BUGHG/3PSeM64QSi1RCY9U/GsTVcYm4MNx07tON2qs/akUwUK6rXNCY08EAhBSYkwytRJCOOJZjTDKIKxGaInwFMtPXFhZcvujNVb8pnefcYnRwVLVQLyV8X1koyo6CjTsYR1W38pPVaRKp4WXBh0ilETgYYVBSA/VOruu7mo4RCqPzLXXnrC+lZ9+jRDyLoQUkGqkamyI5kUfY/D2b7+3/4bPvhepQPiAxZoQi0RIhZAKJi+2UghEPL4EBEKAFQrVtnfDjt70l9F77Ueuan/rv51b73zf9Z8sSC+TF14aWx5wtNDPYHSACBWZhSfvsYu4+f1nG+WlRdKdI3yfqFQcFw/0mwvPMqqRHkp5RKUC6dZ2p7uaJHlA+D667AhJdqyHXil3fcPQOm8BaL1Eqvo2B6kUOgzQ1YlxVr9ZepaRfirxdSKUR1Qu4qUzpJrq2pz2CIQUjoDbZLcCqRTGWkwQIJQBK5BaYZWH0AYpZY0y3fKBt5akp7LSS7bRIMEEEUYHREHAkltXe7CHboHeaz9yhfDTS4T0sHgIAVHfJoTysVYjpIcNK6T3e824xssceCK9Vy59B6nsL4SQwqoUu8DTjIBqnk56v7+j+tSfEMob9jwNSXbGMT67N01jDB9cSLAW2dQ5JoeTWXgK4YaH3w6MIFi9137kEuGnLxTSE0P7rkvbQUikLxAig2yZOa6XxHhw60eWNCQwQnqE5cKY49z+sQu+qaPgk16mvu7LxnJHVC6TaW1n/KzvxCGkR1gtkcpl8Zuakn9/IbFGj+KQOvZb4LgOv76VVyqPqFIZW+czDLd//IKlOgwu8RJ0g1ZIpJAExQKZtvaaIWIyIKSHMVHD50J6HjqKEKEGKZGewGoPIy1CalASrMfyExd2zzjkyHbpe1L69UmPFRKpDWFUJqpWMJUd3BXsAYLVe/UHDF7KsQtCwRCnoiRojZUSkWpC5Tsa6lGGIz3/OMqP/vpygtKExZVGyB5+JsHzD0FQhFQTCMfmCqFAiElkrnaCADCAQGbHtsqr5umolhkjlO8j9l0qUAqhPPA80BarI0jlySw8dezlNNChAdzx+Q98TlcrX1OpVMIACoQl3InzqIfffXbpgJCiOdHSpTzQIUYbMq1tY463yxAKhCGqVEm3tINuIL4qDxuFRJWRbdrmLQBsItOv0lmCwf4Jce13fOGDDwshDm24PyYiLJXJdHTUtVDuKUjPx0QhsoFYI5TCWos0gDRYJTHGQygLJkIYiRQKKzQzX/7qToxOHk15oAMiHWECjYkCoqBa465gNwjW9ssv0MiUFJ6PEJ4TeKQEBaZvkyNWSKTyAIFqnV13nHDjI3UJmfSzmOrYb+uJoun4DzK46ttYQFiLNRrH68aEdtIRi4VCOiJZLSLGofROzz8OU+zp7rn874WQabfv0kOIeN0Soq1PIvwUQnkYIuQYyvYaGlz3nV+6aKtATPPSCey7UhBFBJXSmNP8/osf1lIqKRPGUqkUQaWISDfh6cnjGlAKHUXY0CnX0Rq8+hySSqUISoURuhsvk6V177nJ40uJEoJqaWL37++/+GEtLDJpr5WfIqiW0IEm29EFkygmoxRoHT+/dSAVCIiqIQgd8ysSjAfSID0wWiGVwXqaWYf+XcPppJ8irJQx2qKjitOBVqvoKBxBkSd8ud0/OacivHRaqJRboJAQcykWDwnoqAxCIVQKi0X6GdIHnDBqrKhnPaUHVtBa56HKveqdDN72TcQepiGqeTrpeX9Hdf09KNXsuCtrqYmEk0i0bO1fUePoTKk30X9rOIaU7wIZ77uK915hrYcUwtHCKESkPGSqdWxl+xB0te7hFWcfZzA6URrId06juL2bjgULx5wi3dTqbVv9l8TzTTNmk99rb/rWPY6JxlbW7ypy7Z1Uy4Nk2mdS3PRsw7bZ9i6aZo/ULwYDA+igQmnrprp9VCaD1Yb2+QeMe03LFx3c5je1bJdSJu/19Jnkps+itGkDlf7ecY89UVjrOP9GdiU/34SXydI0Zx+EklgdITwfYS1KGlACa3xEzHERwLY1dY3+8Xh52l52YOxDVo25q3AUdwUTJFjdyxY/ILx0WhA/MIj47S7cgy8lKN8dVxKsRjbPRqgUqnn6qPGCJ+/Cluu7F3md8xCZFtANHYx3CUOioQ1i5bD0nWLR2MlUuiMsxHKoezsKOW79ETjluwlKEFXifZdOA6eEU7Z7HlZbjA4RYXX8ynZ/5BqWLzp4Xz+XX0+DB6h51mzK27ePqZsxlQoincFYXVcVJYQk2zGN0vZtDGx4xvn4TBKaZ82muGUz6dY2BjesT2wnhKRp1t4UN28YQbCKm55HN7gfM60dWKMJy4PjXtPyRQcv9ZuaLwGLMfXFu+ZZ+1DcsoHKYD9hcc9LHUMwWiOVAmziY5CfNhNjDUhBtacHv7UTqz2QGiEEUkm08UBadLVKVG1gFTWWVHMroY7QJbDVKjqq7tBdheGoDZmYgkiqwx1RclwVUrmHHRX/DdG2dbFS2wPlYwa34s95ed3hou6nQKUInr6n7nlv2nyni5kENB3/Qax1bgXoEOeA6uTuyYPjrJxIGB/xEvRCdZBZeIrTN0kFykMgne+vAF3sATzn/CoEqmXGuImh8Hcod5cvOvirfnPr0yjP2ah3+kg/RdOMvShu2zL2wNZCJjdqjKFPKt9CtnMapc3PEQVVJ4YktN2dj0qlyXVOp9jTjfB9yn29iW0z7Z1kO7qo9HbXLsPoiN6nHkcbndivde95BMVBTBiM78e0llRzC35z6yWJ+9PUQtOMvSj3botdKUqTsj/OAOR0VknnhfJo3+8AvHQWAehylWqp6CRDqQCDUAqkhwkCyr3b3G/a4NpkNoO1lpbZc7C2MpK7CissuW31KIZqQhyWEMrdxCinrxIqfvDcgyNrC1JYjFMoe9m6vlc2KGJKvchsG8Ez99X1fs8edgbRpjUTWeIo6MGtAKM4PNU8ndTco7FP34MZ2OKuw1oYQwG927CGofeEEDEBGydU83RU8zSivueoGTmGlO1SYaMqIpVF+LlxKdvrYe9jFn3+wLPPTzz/6JU/pv+5p8Y1VsfLDuGgt15Q91zvurWsve5yKn29HHTuhUw/bJzi6wTx8E9/QLq1g+1PrCGVy/OyN59L+/z6ESuPXHEJgxufQ5uRIrKfbeKwd34osd/qy39EYePzE1pXpr2TA858R/Jali8Daxl4/hmssbzszW+ftD168LLvYaOII5d+IrHNA5d+m6hUREcBvp8h0CWkgGr/dvx8BxjPOYpGGj+b45Uf+W7iWPf94F8ICgOkUhkCHeJ5rZhKP1o35q5gAgSre9mZkfBSsUXNg9h3CRmLfwpsuS9WvBknngQVVOucum/66rq7QAfY6iAmgUio5ul7hIAM3voN2s7+zqjj2cMXE254GJo6sdXBmnpp0jCcn43dGiYqgqbnH4dZfRPYoTcaRD3PIJTndGI6RHjZcVtkAYSfpnvZ4uO6lq68M93SyozDj05s+9i1Px33uE177d1wLBM4wtC+/wEN2+0OWvbZj771T2BMiLQe7fMPTJzr6VW/pv/pdYidFfBCNOz35M3XTZhgAQ3H3PCnO+iO9T5+Lk/XQYdN2h5l27sY3PCM0yPOrG8cm3PMIp69axXSRPFL0jEm5Z5eUi0dWK2c9bJS4uUf+FTyXt1yHdYalJ9CRyGt+8wdyV2FQ9xV/VCe8YuEUipULPqpIXFQIVDYOGxJVwZixXXMRvrZRN+rcMODCM+JIqYySNRTX6eQXnA8NpqYw91wqObp6P6NVJ+6u+753KscN2GjEGstwsvUuLI9jtjSJIbEQkCk60d/JO1Hat6rHXclJdZ6biwdAgqpPISfI73vKyc0pte1H8CHJnQtLxEUt26isr2nYTjJ/3VU+noIq2X+csk3E9ssePO5eJnMDhcYIdHVCirlY4OqI2B4eLl8Q8K6/rYbSeVbwRo0BkWT013pamwZrKDDsL4ViHESrO5lZ35UCKczQcjYBV/GD47n9ClSOXHHWuf45+fBT37T64EtYMFGAUJKwuceqNsuc8AJu+036E2bT/nB65ySfedznfPw9z4CmW4CXFydmSSCpQvdOPE5ZuWkSLRKmnJfLdB61JqnLXBcbKxsx/Njou6cG+sp2/XgViqP3VZ3PJlpRbXOPnwXL+tvFsXNG7Bh4BTlwk4u9/wSRXHzBkwYYoKAweefprh5Q912qaZm2vc/EJSHCQP8VAapJEJKBjY8h1CCav92Fr79vYlzPXnLdZS2babSu41Ia9rnzcdSIQqrmGqEDiOisMqS2x5JiKYfL4cl5LeRsYOiiD/Sj32AJEJC1PM0zjqowGqsjRLN9cHT92B1gIlKCC+FjSoECQRLpPLITMMsFmMvX6UQQlK876q65/OvXILItCDSTUTbn9utuRrBVArUqK+Iwx285FiqyqM31z2eWXiKM0YI0NUB5wfnZTC6itc6q74I/vgqbJjMqcp8x8wJXcxLAIUtGwgrFSc+T1Bf+H8FhS0bMEZjBURB2JDLOuzv/wGMdnG3Qw7LsdVbSgDDXkcnJ5RYf9uNZDqmgzUYDOgMplrF6CpRUMFWKuggSOSuYLw6LClFbA7Y4Xs1FLxrne8V1jjZXxusn0aqVF3fK4DqE3eAjpB+FmssQkqsCdGDW+u6P2QOfiPlh1Yi1PgtasNhTYRQKaJNjxH1rK9LSHOveBuFu3/s3AYmC1Yz9ANjY4tTmDyfLvbU3ZMh5TtRGaII4cduGSpP5uD6rgzBM39GdcxNXpvym3bhivYI+tY/gZ9Pnr6RiNG7bi1BcaDuuaduWYmXzSD9VGyu33NREy80ep96HJkQ/gO7vkdP3HA15d4e0pkmjA4YfP4Zips31NVlpZqayU+fRXHrJncb454t5Xts/+tjLHx7claoJ2+5jrA4SFgsEGlN5/wDMUEFHcTcVRARRVWGB0jXw5gEq3vZmZuFl3KuC8J5rQspY3HGA+XeXEIprNagPFSuA5HK1SU+4EQj4SksGiE8JxYKRfDU3WQPP3NU+/T+x1J55NdjLTURMtOKHexBCCjefRmtb/7qqDb+XofgzziAYMPD2HBiEfUTghBxtobYUphuELSqIyqrbyT/mveMOpWefxzl1Tch/BQmqsYpYgT+7NEZX6Ke9Y4jTshqKpunY0o9L3j2WQDpezxzx808desNdc+rVIrTfrwysf9DP/sBA88l+1Sl29rxs1l0ME53g79BhJUS6369gnW/XlH3fCrfzMn/cU1i/3u/989UB/vrnjNhgJ/OOLdKDWHF6bKO/9L367Z/xQc/w91f/zTWGqRUaB0ilEeuayYL3vS2xDWsv+1GVCZHWBjAYDCBh6kWMaZKGFSw1bG5KxjPK0fK6U7R7nQu7u9hvlcCou3PgFAI6SGlh6kOJvte9axHSA/VdQCqcz6yYy5q2gJk295EW59IXIbws5DgWDcmBGAjRyRMROn+X9Ztlv+7v0f6WcLNj+3aPONZiN1hihRCuvipJEhBuPWvdU/VlO8o8DJYqUgnJEYs3Xc1NigkhuCo5ulOrHwRIISkvH0bUblE6z7zaJq5F9mOLlJNLahUGpVq+MLFy+YIiwV0UCUY7CcqFWmdM5emGW4cO4le8y8UpJAEA3119ieDEIJMe+MME+nWdnQYEBQGiMololKR5r3mkJs2g1zXDPzcDhWCDaoMPv8MQaG+82t+5mwybR0ExUGk71QtAph34psS53/yluuIykUqPVuItKbrwEOAIe4qxIyTu4JxECwhPOHkfy/mrOKbXrpQHBc/qJxoJzxEphXV1JWY90qk8uReuYTMASeM/jTwHcq96vzdii20NkIYl6MneOruupZAkcqTftnrmDzt7JD+ihqn1TDw2OJMxRsfqXva5dGyCGEhQdk+5O82xNElQaQapPqYwv8phMUiD//sB4nnDz3/g6QyeVCOWEnlJXJXQWGQdTdei8rkwFqMNeiSremuHHdVRgfj08U0vIu7l53p8koIhUtEpeIQHOUoqwJT6HEWK+m8362OkLmORC9rFacDTvokweucNyGv8J3hiK4EJEqlGLz94rrtsoedgT/jZbs8z7jWgoiJkUZmGucxEkJSefQ3dc9lDjkdVMql9Mh31le2P/F75xg75qJeuvqdKexZROUi3Y8+mMhltc8/MNY5CqJKmbknJpcEWLvi51gM5W2bHHd10CFA1XFXQYgJNFEUsOT2R8cVltH4Lh3meyWUrImEQsia75WpDiJq/lgaoXzSB544nrknDDVtf2w0pphbF9YYF9hpIhcZI2Si20CjnPO7jSHrIICXwpu+oGFzaw26b0OiS4bw02AFqbn1la7VdXe6lDNj4oXKrTOFlwLKvVsbclkLl1yIDqqoTJb93jha7wyOu9r057tQ2Xwyd1UpOt33OJFIsLqXnflzIYd8r1Rs3IrTyKBc6uM4dQyANSEy0wp+ZlzZB3YF2cPOwE4weT/E8YIyzpAQZzkQUlJ59Ja6hGDyIHbQBSEQmdbGnI0AYQ1gqPz1jrpNvOkHYIJiXQfdcOMjmLAMCOfS0CBwV6ReNCPhFP4GEQwMNOSyZhx+NBjDrKOOIdVU3+3IcVeW8paNo3RXOgjQVc1EtdLJT4uQ5yPksIBUD+L8587THaJtTyGkwmqLlRKrvAmFhEwUqnk6dhfUS0KlsFZjrXY+YiaCKEQqL1E0nBwM6bAkwhpkLjl5nxnchpA+4CG8LJW19Z0+0wuOTxTBy6tvxFYGY4OIilOH1IfYg+n9p9yd/negtG1zQy7rFR/6DIe84wN1zw1xV16+CYxx3FXZYKqB87uqVJ0hbIJIvkulEs4bLPa9kqpmlbJWxfmXhONehOc8xYVMFKdsUCTqTjY/D4dI5xO5tPT84yndf+3EYgylh7AyJs8i/rhrMpUBqk/eRXr/Y8c/3u5ACIayjTbiFvXgFkjlMDZEWh8hJMFzD5Cac+SIdl7nPPJHv6NO/62Y4vaYg9uRRz4JdlctsDsj1hWKl7DP0xQcKn3ba1xWPS6qke/X2hU/B6UobXyeyBi6DjwEXS67lDOVXVPrQALB6l52ZnFHoLOPq5/nlOpiKL2MjtOxIJGeh0g3I/Odib5X1XV3UfzTfzYQgSwq1+5EpWxHXV8pcKE6lcdunaDF0CJbZ6D7NoCwCCGwCNAGISSlv1xLas6RE8pNtUuo+WA5D2FT7E7mSHWE9DOAxFiNwBVk3ZlgAXXHqKy+ETO4DXxnqLDWQAP/sgnXLKsDlwo3dDrOPaDEF5OYG2sK40MUVL728M9+8Pmj/uFz4+4TFAbZvm4NXr6Jas/WHdxVOUDvRlwwJImEUuaQQwn5RPz/OP+SdPmXooHNIBRSuRw6pjKINz3ZulZ98k73hzWjPjLT4nyBvCzCz2J1mBioG1fVmeBlCkcAvBwwNK9FWIMwFikVxf/5+QTH3AUM02tbCSKdrDeyRsefEBl7x5tCz7gDs6PuJx1XHKdjdsxxA67U3x23BouQzqFYoBCexE8le2WPiZgBhv/FEcsvERvH6Zf91xe2PfpAoi6rHtau+BlhsUDxuacdd3XAIVgG0Xr3iBXUIVjdyxbvK0ScBUAo9/8hcVDGrg3xgzCUlYF0Myrf7gKV68AGRWxQJLXXwpGfOYcjm7oAO8L6J/0MlTX1LXgAmYPeMGEzvLUg8q2Ok4i5RWKxVngZou4nE+MZ9yxErQZFkuf5DmiEVC5bp3F5s0t/vmLMGSqP3RbHLeJ+J2NqgeaJq/LH9NmrD0/F94mzIst07FGvJs4duWSNjlpJK14yD/WEYa2LuX2JoNyz9R8b6bKGIygMsu3RB5GZnIsZtAZTCbHVPfNj1nnq5VNInI5IDN2MXvyWdr5Xum9jXCBVYYmrJTcI4i2vvgmQmLCKCWMfDCtqaYKB+OZ0+aFsUMAUtiWOl97/WFRzcvHRurDOtUG2znLKdxPFSngDJkAKRemeX0y+1VAOZWugll4necHEhGpI76Ywg9vGXGP1iTuw1eKOeE8BVk6CTsmaOPhdYKxBplIIqVBD3PkEIT0fi0BgXKrnoXvifxOEQGUzqN3hQF9gnHXt7786Xi5rB3e1nsgYpu1/0C4p15Mw+q5SUtYCnYc4qDh3uMXV87M6ANSOqG2hyB52RuIkjnOx2KCMtRqpJFiDBbz22eA7YmeHmd1NpZAoFgIuFfB4kxyFZVe7zQJao9ItMYc1pGtREHvtF+6+bHxjThgxxzFUfUXKhnm+bFh1baXc4UOGxVYHE10cwIU+2bBcm05AzSrpgq8TVudn6F62ONkDMIYJ3W8kPR+UdEHFUqJUBimUO24EaoKe80aHMYEVWHD31iRWen5RICUqnXEhNQlVev5WMR4uy3FXDyDTWWcZLO/5mNwRBKt72Zl3CKHiQOch3ysnDgo5FIbj1SplWCyyaToIEq16enArNio74jKU4N7YWI+Ek9Xih9iasPZClekclTW3JC4896p3jj/fu5+NM6HGc6dzWG1iVwfHaVkTIIRE96xPDIXZPVhGuDUYk5i8D4CwjPAyNW5QSOWKFCif6ro/JHYr378i9p53Cn4rBMK4AhCN0st4XfMA3jVWxZrqQB9oG8eN+lgLynf3hbEGY0JUPoP0VHKJqGGwWrv7DBnvjnH/WU1ULVsh5eYxB3kpQHmoVLb2kbsRtfFi4Kxrf//VnsdXN2yzdsXPCAqDVLZuRE9SbYSRd5SUx48sMuHV8l7Vikx0rwesI2g6RJf68FpmJj7klcdXQVDG+hmEtY5oSIMUjnjVOA4sw52sbGUAY01D4iHSTdhqsaGSHsAMbnE6A+XFOneDapsV53J3b3VnhpfItE/pz8vJvXJJ3bFstb441mh+3ftsrGAfKkLh/iSqJl6f1SGqdSa67zmsVE40HOJ4raH80HV400YbOXTf86imTldnLwpizz8A4rYAAB8oSURBVHrHqQkvnTifKW5H5trmmm2NbzRrrbMKK4mUHvge/c8+TfNeczHGj+PkFYWtzzH39acljlPZ3oMxFuXhXpDY+FZwfnK6EtjFy2+Vv/3wufXrab1EYADhe3g7VTqWLw0OawSLGxaLm4BZSY0HN7pcckGljEqo7Ly7GDFqYpEJOVRkYqjii4Swisw0E/U9R9D7LMEz9ybMkEWmMrGuKC5bHVvqrLGgLF7LdKJCN4QBVgcIL48p92N6NxDe/JXExYtUHpltIdq4OjFjKYDw0ngd+wLCpaESCnSEkB5GV6nl1rASqVNEvc8wkDCv3zxtp7FT2KBA6d4GynChXLaJ2CdKCIlKZwk3PUq46dG6XWSmGa9rnhNlhXUB5tYgpY8p9VG6r046Eenhd85z75NU3tUoNBpUCi/bRrBhtcthXw/K07ZaXBRVcg2L3vn5Jky1ipfJosOKKw0lJToo46WzaK3QUYD007Tskxzx0PP4apTvO2IqBFYJV7AojIgqRfOmn9340tFKJ8CEIX5CtWwxGTrFPQphz7v9kRGLNHoM9tsagoH6aWwaTyXrpzmtgxrB6l52ZrV+kYkhCxAuHW9QQeXbCasDmGKlvnLVAFKDysSFStmhVB8qJ2osSOPs+ypd09dIP03YF2f9VPXGdpVtZK4NohBdiM38dawuQqWRuU6QAmsMQrriGBhX4FHkO6BvE0JqED66PEAUxbUKdxpP+nlU2yxnAdtWAC+F7+cJCpsS58eAP2MBQnqEPU+DEPjZNoKBjZhgoP6avSxex95Y62GtxevYh6jv+ZryPerfMHo+A6p9tuMgpXK6wUwbYXE7pPPYch9Btb/+fiJt5wVX1E4EF412Qh2OTEsb4WA/GIOXzmGiAIOl3LMFa6F51t7ITAovnW7oWFju2RoTK4mQhta588BUqJT6q6ddesMumiz/liBI5ZNFfjuSefmbgpXYt/3mLy8IRRVSfv7cWx78l/G238FhSZnaUWQi9r2SyinbrYerdVDEWk04mGzBwwQ6ZiliImSxGIQ1rsiDxREMaWL1KmANnpch6N+EKSVTaJnKoqYtQA9uxAx0J7ZDgMw2g/SwOkQIH0yI1SIuPBqLhmhU+2yinmcwpfrjCc9HNk+vuSBYK/By7UT9W2iUEk5lmyDf5a5QSGSuDTOwhSBBpEQqVOssF45jjLOsKPe3EopwoP6eK5mC1jb3xYJ7WyhIpxFCuGwadWGtDcsndy1deevwoyaK2PLQvYnE5uXv/xS/++z7UbkMYaWI56VQWIKgSlgqsr1UwBRLzHrV8Q12B8JSESU9kAJtJEI0segbP5hsT9HJrovkIAQ9jyVwsjFSLclhWS8qhNRvue6PL0RyNHvOr+6aMFH0ALqXLT5LqPSIIhM136u49h3GonKdkEtIFqbSt7ac/Lk3di9bfBzS+4OouSzYHQ/SkKVKeIBFxI6BNgoh04SfSchcYG0sFqUhKqOy7ahsPedRSdS9zunetAXh0hBbrcGLlc9x6IjVxmU7DUqo5mku5fCIoRRmYGtcyXroGlPOOz7Tgp+UFiYKXMCx8l0QkHQcnUw3IafVcRSVCt2/xRFRa4EIa1POy9vGFtlsG362bWS/oIwu92M9P64oDeAKgAghsZUCqn1v6vBwFpU6tuXkz/2x3vKFlH96etWvX51EsPIzZzPn2BN57u7b8VIZZDZLaeumuLyYxJSr+K1tvPKiL9bfH1zK3nLPNpACYyy5aV120Td+MKlvdCmkVZn014AvTOY8OorG5dKhUsluQBOCEHuECFsATz105hW3HrHbaxoDUgj75qtW7dLv7SipkCtGFpnw3INmcbqmoJDIwAqhdOsZX6tR5K6lK+/svvRsdoh/MaEy0hGd2DwvkBhtIGoQYiOUK8vuZbE2gjAx24DV258WrhBqnP7GhAjjgxqa32JlBFYiohBrwvpWfgF2KPBYDW2Ph7UCW0leqxUCittjp0nHOWDBJHFUAszAFte+ttcaawXSWkwUgB1t1bNCYnqfQyjnoCmGyoUJQPjYsIqlfqyWUOqu1jd9LblKAPDGH1z5mv/+9PtsUvwYwOHvuYj2BQfxyBWXMPDkWpSfcoVzvRRt8w/k1Z/4SmJfgL/ecCWZ9k6ichFdrdiT/+3qSSVWQgp92s9+7d38/rOTFaK7iahUHLeYl5s2A7UHlO5SCXvaj2+Sd3z+g7stXwrPf/+bL71p2W4vaqx5hNSn/ew3u8zBuY5S7VRkAlw4SxWr69/8Fmnaz/lufcWocxySWOvEQEwsFlrnaGo1Nmzw8CMQUbXmjGrDBg5rwruh7exvL+5etvibKPVJYQRW6Nj1wiBEFPsyRQjpO6/7hBtLF/tBOMW22xdHxG2DQhEWJ3YJlXLFTGMXEBoQDl0ugy4ilF/TrYHBWoXQIaZOzi+LMqb3WckQgRPuqJN/peNSk4RUoXTb2d8Z900SFAusXfEzDrvgw4lt9jn+Dexz/BsA2PKQM7i0739QQ0IFjrvqfXItUaVMWK2Ys67+3SQq1y1Cqc2n/nBlomVrT+DwCz7M/qecNa62f73hKrY+fB+Zto7dmlN6nn7DD6/ebdFNSGFPueRXL4C+yiKUv/bUH1570O6M4nUvO3O9KzIhd3id6wii+kTCCmHbz71krAv8pMV8e8iNARWLhcIgGmQosEI4Z8o4i6YIkh3PrJRB+9t/VOOru5au/FT3pWd+DGkUcaI+JKAliMgFa9cJ/nWuYFbbynaFTIHyHDmTEhEGENYnAlYIawrdAuX6OGuqcPPUCYGxAEpt1v2bZwjpC1Qc54d2hMpGiDqFEobvd8+PzxmSr11fKV3q50p9ztNKYdvfPuZvNQo9jz00V1crT8859qTEUurDMd6KxEFhkAcuvRgvl6PQvcWcc+3vJ9USKP3U50/67mXjVujuKvIzkysm74yN99zJ1ofv2635pOdvWPSty/berUEAIZQ98Xs/fUGU6zKVPvukb1523W6Pg5T7IpUTaazBhhVsVMHoap1PsHIcxIqupdd/x5Vhd5wDACbABuW642pdRQclTDUmkjrAhklrqNq285aJ4cSqNu+F13s2jruzRseuE6HzsK97TYFpP2+ZMIVtNc20S1+ssWEpcX6jw8/X9kEQV3JutHdunva3/ccsrDnHrdHs8EGLqqP2Rrt5vjVqv208H84RNGGfrDHhMbtCrACWrFrzTK5r2pY/fv1T9K5buytDjEJQGOS/P/1edBiw5YF7q5NKrISwJ3zzJ2LRN/cIsfqbMuepVPrze4RY+Z5e9K2fTD6xkmrot9htYgXgUogaA6aa+MtYIYKud189MS2hNS7MUGusbpBfXsjNVldnilgMa+C9bjvfc83YG2z0pVZwoTA0yvE0eqwh66VpEFEu5DOd775qbq2LANG4z6h5upauvK770rMsWGF1ALoeVyW3d737qlHWDbehtnGaaCFu7Xz31W9MbjA+vP7rl8687aLzwwcuvdhbcMa5zDlm0S6PteWhe3n4pz/AaM3J3/3FpFrphBD2tV/54R55EI3R9rVf+Q/5+y9++EUnWsYYXvuVH+6RvZOp9LbXffmH9fNA7UEIpexrv7JnjSle1/tWTMoN1HXh9S+KZ1zX0pVLgaUT63P9BCOp437v3bW967rwul3am673/eoFTRB10vcv93//xX/YuPryH8169o5bmH/6W8Yt/oEjVI9d81MqfT1k2jrsSd+7fHItgZ5vz7z2jj0yh/RS9q03/O5vw7tTCPvWG/5nz6zFmhWLl9/6lj0yVgNIL2XPvHrP79+LU4xuCi8ZvPbL/77X8kUH75tpbXv6/ksupnXfefj5ZtIt7bTPP3CEkj0oDNK7bi2V3m5K27YQDPShsjl6Hn/knUtWrbl8V9cwpNSvh6jsuHc/m9en/+d/jXk/NxJxyz3O183PN5vTf7JyhMi6p0Tj4lbnaCw9v7d33drExG6lrZuH2tkzLr9lzAe/0R7pagWiiGrf9jcuWbXm1sSG40Dj38LpiL10unzGFb/N7c48SRC1Ci5TmMI48Nt/OPfPXjZ3VGz1wcukcRYHS1goID0Pa40td2/562mX3Ti2xn4MLF908BemH3ZUojuC9DyKmzaufvMVt4wueT16rMOmH3bUQ43aVLZv3famn98yQly6+6sfD0o92/ZI8F9YLtH7xJqPAT+dfthRDcOgoqASnvLDa8eMkr79o+80toEvlp/N29f9y492m9sZ67cwWhMM9N78pp/9JrnA6G5iimC9gLjpPWeYdGvbmGJdVCppIYVSGZeiJSqXOOVHv6z1W77o4FUzjjj6hOG/XXHzxrsXX3lbLTH9r99zhkm3tgtrNDoMSLd1EJWK9qTv/kIC3LDkDVGqpVV52fhFaAwnfe/yUWv7788uNVhEMNiHSmfQ1QqppmaiSnn1G76/vEYkli86+Kw5x5y4olroFwAqnbEnfH3ZiIfk+vNONE0zZ9fmEFLaEy+ub6Xq/snZUZz7RwwRRPdISosOw66l16d3tD3nEgwX1jpLa7ve+yvVfek5I/MPWT3YtfT61h39zo4wwzJBDvX78TlmbFW7NV0X/sqL5xDD+v9tiJH/SzElEr4A+K/zT+4tbt3Ylm5tZ/6pZzd0Fehdt5bNf/mjstZy8NvfA8Dj1+2Qpq5909FG+r7wMjkOeusFteP3X3Lx0QC3fOAtRihPNO01hxlHHE37/AMJCoNsffBeqoN94jdLz7Yt++xHuWcb7fMP4ICzzndzXL98xDpWnHpk1LTvApVua6fzwEOZcaTTXQWFQbY8cA8Dzz516G0XvcOc9P0r5K/OOd6odFqUe7s54r3/D4DNf/mTuO3/nW9O+t7l8sYLTt9U2PzcTJXJkeuawfzTzhm6rrrEe/sV7zEy3SZ2MA3OIRjfgygQBOVUz3++3dqwWpW5LmS6dZhBSGK1Fdsvf4+V2Zg2CZwVt1pqGTaHlum2YcTFYnXk+mXGCpuxGC3UiDkw2Kg6lYR+kjFFsCYZqz75blPp6xFD2T/b5x84puJ681/+SLZzWq3ds3+4lds+cn6osmnPDPP2HzGOwL/hvJOsl89z0OLzRhW3HLLyPfXb63nixmsByHbNqI3x3F2319pef+4i07JgoZhxxNEc9JZ3kWpqJigMUty8gRmHH82cYxYRFAb58/e/LG75h7fbYLDfORwPW9OMw4/mvz/1XnHbRUtMMNgrhBCgNblpM0dc187oW/ExIzNtLo+0jR1jledSCRV7sEpAxjnmypbZaTE877v0XI62EdZh5zRMWMZ6Ht2Xnq29jn2EzLTUiIuNIxrkOPKrWWPA8/DMsHmVhy33u6SLU5hUTBGsScINS042Xj4nUvnkQhO969YSFAdGHStu2USmo2vEca1DT9HAs8RawnKRWUcfO4JYFTdvoLBlQ41I9K1/gt4nH6OeymPV5z5s+tY9LNrmLaDrgEM5/F0fAeC5u1dx3799hUzHNHSlzBt+cBWppmaO+fy3uOPzH0xc0qs+9s/c9bVPCKn8OPIoOePpwC3/shQT/EhmW0cmc7caK9JgImS6CWsirNGo5r2gVoZTgoiDvofHW0kfoiomqmAJESaFP3v+Tu4sPlaBMMlFZofGskEV6fuj5jDF7Y37TmGPYYpg7WEsP+mQTal880x/jBAVgAd+8h0233f3yINKoZRH50GHTnjumS9/Nfu+/pTa97UrfsGaay/DRBG5rhm07rufs1KJkTRhCL1/fUBIz0dXKhz01ne7Y+vW8sAl30QHIVZHeLkm7rn4HznuS98D4KC3XkBQGGD7E6PzeuVnzmbOcSfx/J23UxnoxQrjOJSdsP0/36ZtFMqRi4qz3Hoe+Dm8fAc23YLoXk9U3l4jVUL6Ln3QTtEFqa79wPMxsgkhQ2yxDxuWCTf0xR0FUghMnfXsDJlqctleox2REkIoRDqPbN93zP5T2HOYIlh7GMIybp8uL5Nl2qGvABz34Tc1s/n+P7Grwffdj69mAW+rfbcYctNnkc43s+WhP6P8FF5Tg9qLFjJtHez3xsU1d4Wnbl1JdsZcUm29VLf3YcxAzdMenOhXj4ssbnZ5uw5+67vZfN8faZu7gP5nn3RB3cPQu/IzRuQ6RxWLlvkObGUQG5Tw/BxEVXTPash3Iv2h0ECLLWyF3IwRub5Vrg1d6oVAI9uaMKGBbBsyznhhdYCoDmKz7cixqi9JhenbQO7V76qlAS/dfw16yxOYSmGqXOwLjCmC9SLCGkO6dYcrTlQusverT2DjPck52xvB93xWX35JTfw76JwLKG3ZRGHz80w77CiXVaFBIQpdKSGlovNlOwqzlrZtRkqNap1BYetWKJcRXTPoXbe2ZjzwcqMJVmHLBh5ZvoxF37yMIy/8BH/61ufrzimVJ3LHjxYrbVCkuv5/0P2bwEtBqR+jA3ILT6kRjvKDvyIc3IY0EU2v+0itX+mBFQiZwpoABrciUnny8Rw2KFK85xfIsIzonEf2kOQ0zuCIk+nbgNc5r1awVj72W6JJylk+hcaYIlgvIg5754dG6LB6163lrzdcuWuDCYHwPEwYcOtF7+CYz/4r+ZmzecWHPktQGGTtr35B7xNrCAsNMk9Yl8diuBVTKA9TDZDCJxroByFIt7aNWHe6tW3UWE0zZtO95iE2P/A/zDzy75j9quMTw66GV64ONz6CbJ6Oap5Oau6rsEGRgZu/Cri+wwlH+ZGb3Bqz7URb1pI90lkfde9zVJ68G2EkRnrkjzq31mfwjn9DlguImQch853JlbeHcH+dVNRTeNEwxdG+iBiyGA59WvbZj8KWjbs8nokiwsE+/KZm7vzyR/nj1z9NcfMGUk3NHPb3H+LVn/kGRod0Hjimj+XIcYMQbEjNcrezGGVGK8TyM2fTMf8gHlh2MQCHv/si0q3t6GpjS1rhDz9k4OavUvqLIxQilafphI9iveSyYXrbOqpP/bFWrzF75Dku8L7Sj8y148921xv1rEf3bQACTHlkZls9uJVw4yOjPkIoZOtuxxpPYQ9himC9iOhdt5YtD91b+/z1hivjituCsLgjX1i6tR0zLM2NEMKFW8QICoOEhQJYQ7VSZfDpdQQD/RR7tvL7L36YR6+8FIBUUzPHfuHbieW3hJRIzxtRMNNqjSWui6gNCCh3j6y8VemvbyUTUuLncty/7FsAHPrOD9L31F8b7olI5TH9Gwieu792TDVPR2bGMGIEBQp3/bj2temY9znu6tgdYaXFP/0M+p6FzgOxO6UNKj+0koGb/omBm77IwE3/WPuEGx5C6kkurjuFcWOKYL2IeOAn32HVx9/Fqo+/iz/+y6dd7J3yUb6HSu+ow7DX0cfjKv5okOBl8zBMTd375GNkuzrJztyXbEsrQRRhgPKm57FG8/yffldr2yhvk8AVzHVuDw5Ns/YmqpbimpQSL5tHKH+ED1hSpRQdhQQD/Wz+y5/oXbeWGYcfzcHnvnd8mxMF6MGtO743qCwOIPLTiLqfqpUx8/c6hNYzv4lqdlE2lcduxVYHUCLlco/VzfjpsuEOGxWZakZXGmQbmcILiimC9SLCy2TJzZhN69z5NO81h1Rrp8uGKiSFTc/VOJ2uAw+ladZelLq30jR7Lpm2Do5470dr42x96D76nn6S3vWPIT2Ptr33JdfRRVitUtjwLLmumSPmNVF9nyOZy1Lp285j1/60dmzuCafhZTJE5QAP6FiwEOHtiAt+6rfXo4OErLRmBwG457v/BDCuNDX+vq8CL10jNkDd5Is7Q0hB8Y87KncP9bdB0em7BjfDrAMg5SN24jKzhy+m5fSvjPio6QuwURXVOeW68LeCKaX7i44IIV39IGMNXq6JTEsrKpPl0asu5cj3fRyA4//5BxQ3byAoDI5QigeFQTb95Y8I6dE6ex8Ou+DDNe5ny0P30jRjZDbMZ+64JVn5ncmjfB8dBLXKOe3zD2Sf153Chj/+jqa5C0jl8xz7hYtrcz9583X0PP5IzdN9BKx1dQuBVFMHj171Yxae+77G2yGd82d6v1fXDoUbH8FUC1hrB4CE6h8OwktRWXsbmQNPqh0rP/JrbGEbItuG3v40sm2fWhWkIahY0b/z+oFRPl7Jk0PPT8/bSaGn6XzXNVMhO3sIUwTrRYY18XNhnV4b5WG1ptKzjZ4oYs01/8nBb3NOnPmZsxnuRdW7bi33fu9LDGx4BhFpqjuJZjuHAG156F7WXHMZ/c+sq7sWYwy6WqXSs5U/f/+rHP6ei5hzzCIOfuu7mX/qWyhu3lAjlr3r1nLv9/+Zwqbnk6/NWrQ2CCEpbd3M83etYu7rT20oluaPPr9mJQSnKC/84YfohDJno+bUIen9XjPiWGrfVxKs/x+UMWhdRZS2Y1Ijc6rrwa2YYSJo1LMeG1WQnsA2KD1Xg1CoYTGIVggwGlMeaNBpChPFFMF6gTE8r1I4OAAWtLZY44pIdLzsYEqbn4NIE/T3svnBe3jurtvZ93Un14hFcfMGnrnjFoJiAZlrQ/As6fZOMJo/f/+rZDu7yE2bxd7HnECqqZktD/65Vvgh095B/zNu/uKmDbX8RoWNz9O+4GUMrn8KrCMya1f8nEeXL2PuotNrcz/12+t59s7biUoFrI5om7uArav/UrumnfMltc6bT//TT6GEK9hx51c+xpEXOq6xtGUTzB2dEsoMbiV4+h7C5x9E9z47ytk0CSLTQmrOyxEpR9bDjY/g73UIXuc8VMc+mGIPFEJ0UEDlRhKs8kMrqa75LWBRnXOxUYTw09A6F4IxdFgqhVA7ssAIqSCsYKtTxGpPY4pgvUBIN7USFgvc/6N/rR0Tfop0vhWhA6LARyinC8rNnEP/+r+ihKT3ybXYcpkHl13swkNwVkLf92nd/1CkkHQd/gq61zzkypGFVSr929n2yAOsv+0GsBYpJc1z9sPPNyGbmlB+hlS+iY33/oGN98ZOqlIy48hX07TPfm5u5TGw4RlsqcQDyy6upZsemjs1beYID/dUrpntax9m1cffVTvWNHNvUs2dpLJpgmIJpUN6n1xbayP8VPWIV502QpteuPNHmP5N+DMPxBiDUGmEDrGSZWjOTdzggc3YXDvZw10cZbjxEQZXfYf2t/3AuUYc8z76Vn4GKSXWKEz/RlTzSN3eUMiS7lk/7t812rR6xHeZakbM2B/iSkvWimRP3SlMGFNK90mGVJK2+QehoxDpp/CbWsh2zTDn3f6osFpbE1aIwio2CAgrZUy1iqlWaN7rZTTPm48plwgqJYzRSKmY9orX2UzHNDKz9iGMKphSAV0eoH3eQbTtv5DW/V5GVCxiopBUWzsqmyfdGetmpED5KRAQlAr4TS2kmltp22c+bfsfhAkqO+beZz9sUCWolrFGI6RkxiteX0X5kN1BqKTn0bzXHHQU4uWb8Zta8FvcmOm2DrAB2fbZCGspbN6An2+uXf+5Nz8wqiS98LPOCTYV5+kS2I7zfya63rvi/Y322aSbaHrth2rfi/degUilKdz9EzdMKk/20DdDKodA1vf4H140ZceK8FpHEjYbVuIAaDOiXap9b0xYgtDpCK2g2PXeK6eYgj2Iqc2cLFgQSlEtOH+q/MzZSKHMyT+6pmZiO+/Wh+XVpx5pKSsCC54JMTpEVhUKn6gIzfvuh7SKSJf0qZes9K4+9eXWy2ahNICo+kSpLF4oEKKMRIEH7fMOIrTF6umX3JC55k1HWwDhC0wloFDZRH7mbATY/mefEl4mS7U8iGcCjA6QFYkiRaSgae99kVYS6Yo+9ZLrPYCrTj7SjacEWEm5bzsynSE/czbK87b2PvXE9FQuRxQE4Cv0oAHbj9fUTKq5bcT1jwUhlG1967+P+VKV0/fHa9u7FrJTeexWwCDL/eje59GDW1HN08kcdBLVJ37nXtNm5LDZwxeP0n0BlFffSPjMyLJcuVeehz3sjJHtHrqOYIPjtoTysMr7Vsd5P/7UeK91CuPDFMGaBAgEUVgm2lYeOmDP+eWddR+8t//mAXHlyUcYL6oKXc0g/TJCyNijXKC1sef8ckdhhbf/5n5x5RsPN9LzhacUpKpEnnB9AF0NzTnX3TmMKBhsGFHqrlUys0p5F595ze8+BXDlKUcaP6wKXU0jfd/Vp8SCFOho5NzuWiwIRXVgkCrO7UIKYc765R8UwPITF1YiJdNWKoIdlbLtOSvqX38SLN6IiuINEVZpeo1LdmiDIpXHboOBTbRecKXoXrb4DYOrLv5t2+JvApA/5n0U7vh3xE5VtetaCYHK46tGHRsijCPaPfbboZXbltP+aUpymSRMEaw9jPNuf2TCN+t5tzwoAZYvOvg1CHEz1q5ZsmrNqxPb//ah2hzLFx18FoKPLbl9zbH12r7txvsamtTPu/mBobn3RfAAsGnJ7WsWJrU/9+YHG4635PZHR4l5Y2HI2XMI0s/olpM/U/fejIbrl8Iy3qyFVrXMFFG3O15d9wes59n2C66QAF1LV97a96uP2fJDK4U3bX48gcQIhShsGzX3zrBBCaS0Uc/6htdtgyIoz3a+66opYjWJmMrpPoUXFd3LFl8KDPcmXdW1dOWFCW3PB7407NBm4NGd+m/uWrrymDp9n9zp0LeAT45jiZuB04C/jNWu3rxT2LOYIlhTmMIUXjKYYl+nMIUpvGQwRbCmMIUpvGQwRbCmMIUpvGTw/wFYMxBwuVEjVQAAAABJRU5ErkJggg==> ",
+						INP_Passive = true,
+						IC_NoLabel = true,
+						IC_NoReset = true,
 					},
-					IN = {
+					In = {
 						ICD_Width = 0.5,
 						INP_Integer = true,
-						LINKID_DataType = "Number",
+						LINKS_Name = "In",
 						ICS_ControlPage = "Controls",
-						CBC_TriState = false,
 						INPID_InputControl = "CheckboxControl",
-						LINKS_Name = "IN",
+						LINKID_DataType = "Number",
+						CBC_TriState = false,
+						INP_Default = 1,
 					},
-					OUT = {
+					Out = {
 						ICD_Width = 0.5,
 						INP_Integer = true,
-						LINKID_DataType = "Number",
+						LINKS_Name = "Out",
 						ICS_ControlPage = "Controls",
-						CBC_TriState = false,
 						INPID_InputControl = "CheckboxControl",
-						LINKS_Name = "OUT",
+						LINKID_DataType = "Number",
+						CBC_TriState = false,
+						INP_Default = 1,
 					},
-					INPUTOPTIONS = {
+					SeperaterButtonHider = {
 						INP_Integer = true,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 10,
+						LBLC_NumInputs = 1,
 						INP_External = false,
 						LINKID_DataType = "Number",
-						LINKS_Name = "0 TO INPUT OPTIONS",
+						LINKS_Name = "Seperator Hider",
 						INP_Passive = true,
 						ICS_ControlPage = "Controls",
 						IC_Visible = false,
 					},
-					Sep2 = {
-						INP_External = false,
-						INPID_InputControl = "SeparatorControl",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "",
-					},
-					INPUTAMOUNT = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "INPUT AMOUNT",
-					},
-					INVERT = {
+					SeperateStart_End = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.Value:SetExpression(\"FromINPUT\")\ntool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTOUT,-(MasterAnim-1)*INVERTINPUTIN))\")\ntool:SetInput('INVERTEDOPTIONS', 1)",
+						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool:SetInput('StartSeperatedHider', 1)\ntool:SetInput('Start_EndSeperatedHider', 0)\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('StartNumberSeperated', startEndNum)\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumberSeperated + (MasterAnim*(RestNumber-StartNumberSeperated)))')",
 						INP_MaxScale = 1,
+						INP_Default = 0,
 						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "INVERT 0&INPUT"
+						LINKS_Name = "Seperate Start & End"
 					},
-					INVERTEDOPTIONS = {
-						INP_MaxAllowed = 1000000,
+					UndoSeperaterButtonHider = {
 						INP_Integer = true,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 6,
-						INP_MaxScale = 1,
-						Expression = "iif(SPLITINVERTINPUT==1,1,0)",
-						LINKS_Name = "SPLIT INVERTED OPTIONS",
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INP_Passive = true,
+						LBLC_NumInputs = 1,
 						INP_External = false,
-						IC_Visible = false
+						LINKID_DataType = "Number",
+						LINKS_Name = "Undo Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
 					},
-					REVERT = {
+					UndoSeperation = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.Value:SetExpression(\"From0\")\ntool.FromINPUT:SetExpression(\"-(MasterAnim-1)*INPUTAMOUNT\")\ntool:SetInput('INVERTEDOPTIONS', 0)",
+						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool:SetInput('StartSeperatedHider', 0)\ntool:SetInput('Start_EndSeperatedHider', 1)\ntool:SetInput('UndoSeperaterButtonHider', 0)\nlocal startNum = tool:GetInput('StartNumberSeperated')\ntool:SetInput('StartNumber', startNum)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
 						INP_MaxScale = 1,
+						INP_Default = 0,
 						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "REVERT"
+						LINKS_Name = "Undo Seperation"
 					},
-					SPLITINVERTINPUT = {
-						INP_MaxAllowed = 1000000,
+					Start_EndSeperatedHider = {
 						INP_Integer = true,
-						INPID_InputControl = "CheckboxControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
 						LINKID_DataType = "Number",
+						LINKS_Name = "Start & End Hider",
+						INP_Passive = true,
 						ICS_ControlPage = "Controls",
-						CBC_TriState = false,
-						LINKS_Name = "SPLIT INVERT INPUT"
+						IC_Visible = false,
 					},
-					["INVERT_/"] = {
+					StartNumber = {
 						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTIN,-(MasterAnim-1)*INVERTINPUTOUT))\")",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.75,
-						LINKS_Name = "INVERT IN/OUT"
-					},
-					REVERTINPUTS = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTOUT,-(MasterAnim-1)*INVERTINPUTIN))\")",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.25,
-						LINKS_Name = "REVERT"
-					},
-					INVERTINPUTIN = {
 						INP_Integer = false,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 5,
+						INP_Default = 0,
+						INP_MinScale = -5,
+						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "INVERT INPUT IN",
+						LINKS_Name = "Start & End Number"
 					},
-					INVERTINPUTOUT = {
+					StartSeperatedHider = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Start Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					StartNumberSeperated = {
+						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 5,
+						INP_Default = 0,
+						INP_MinScale = -5,
+						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
+						LINKS_Name = "Start Number"
+					},
+					RestNumber = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
 						INPID_InputControl = "SliderControl",
-						LINKS_Name = "INVERT INPUT OUT",
+						INP_MaxScale = 5,
+						INP_Default = 0,
+						INP_MinScale = -5,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Rest Number"
+					},
+					EndSeperatedHider = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "End Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					EndNumber = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 5,
+						INP_Default = 0,
+						INP_MinScale = -5,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "End Number"
 					},
 					Sep1 = {
 						INP_External = false,
@@ -867,1766 +775,1368 @@ local function animUtilityPoint(uniqueName)
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "",
 					},
-					ENABLECUSTOM = {
+					AnimationControlsLabel = {
 						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.Value:SetExpression(\"FromCUSTOM\")\ntool:SetInput('FULLYCUSTOMOPTIONS', 1)\ntool:SetInput('INPUTOPTIONS', 0)",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "ENABLE CUSTOM"
-					},
-					FULLYCUSTOMOPTIONS = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 12,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "FULLY CUSTOM OPTIONS",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					RESETTODEFUALT = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.Value:SetExpression(\"From0\")\ntool:SetInput('FULLYCUSTOMOPTIONS', 0)\ntool:SetInput('INPUTOPTIONS', 1)",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "RESET"
-					},
-					CUSTOMINPUTSTART = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CUSTOM INPUT START",
-					},
-					CUSTOMINPUTEND = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CUSTOM INPUT END",
-					},
-					INVERTCUSTOMs = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT)), CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN))))\")\ntool:SetInput('SPLITCUSTOMOPTIONS', 1)",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "INVERT START&END"
-					},
-					SPLITCUSTOMOPTIONS = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 7,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "SPLIT CUSTOM OPTIONS",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					REVERTCUSTOMs = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"CUSTOMINPUTSTART + (MasterAnim*(CUSTOMINPUTEND-CUSTOMINPUTSTART))\")\ntool:SetInput('SPLITCUSTOMOPTIONS', 0)",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 1,
-						LINKS_Name = "REVERT"
-					},
-					SPLITCUSTOMINPUTS = {
-						CBC_TriState = false,
-						INP_Integer = true,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "CheckboxControl",
-						LINKS_Name = "SPLIT CUSTOM INPUTS",
-					},
-					INVERTIN_OUT = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN)), CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT))))\")",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.75,
-						LINKS_Name = "INVERT IN/OUT"
-					},
-					REVERTIN_OUT = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT)), CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN))))\")",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.25,
-						LINKS_Name = "REVERT"
-					},
-					CUSTOMINPUTSTARTIN = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CUSTOM INPUT START IN",
-					},
-					CUSTOMINPUTMID = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CUSTOM INPUT MID",
-					},
-					CUSTOMINPUTENDOUT = {
-						INP_Integer = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CUSTOM INPUT END OUT",
-					},
-					Sep3 = {
-						INP_External = false,
-						INPID_InputControl = "SeparatorControl",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "",
-					},
-					ANIMATIONOPTIONS = {
-						ICS_ControlPage = "Controls",
 						INP_Integer = false,
 						LBLC_DropDownButton = false,
-						LINKID_DataType = "Number",
-						INP_External = false,
-						INP_Passive = true,
 						INPID_InputControl = "LabelControl",
-						LINKS_Name = "<p style=\"color:yellow;\">TIMING OPTIONS</p>",
-					},
-					ANIMLENGTHIN = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 100,
-						INP_MinScale = 1,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "LENGTH IN"
-					},
-					ANIMLENGTHOUT = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 100,
-						INP_MinScale = 1,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "LENGTH OUT"
-					},
-					ANIMOFFSETIN = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 100,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "START FRAME IN"
-					},
-					ANIMOFFSETOUT = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 100,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "END FRAME OUT"
-					},
-					CHANGEOFFSETOUTMETHOD = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.OFFSETOUTSTART:SetExpression(\"(comp.RenderStart-comp.RenderStart)+time-ANIMLENGTHOUT\")\ntool:SetInput('OFFSETSWITCH', 1)\ntool.ANIMOFFSETOUT:SetAttrs({INPS_Name = \"START FRAME OUT\"})\ntool.OFFSETOUTSTART:SetAttrs({INPS_Name = \"OUT START FRAME ON END\"})",
 						INP_MaxScale = 1,
 						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
-						LINKS_Name = "SWAP FRAMEOUT MATH"
-					},
-					REVERTOFFSET = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool.OFFSETOUTSTART:SetExpression(\"comp.RenderEnd-time-ANIMLENGTHOUT\")\ntool:SetInput('OFFSETSWITCH', 0)\ntool.ANIMOFFSETOUT:SetAttrs({INPS_Name = \"END FRAME OUT\"})\ntool.OFFSETOUTSTART:SetAttrs({INPS_Name = \"OUT END FRAME ON START\"})",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.25,
-						LINKS_Name = "REVERT"
-					},
-					OFFSETSWITCH = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "CheckboxControl",
-						INP_MaxScale = 1,
-						CBC_TriState = false,
-						ICD_Width = 0.1,
-						INP_MinScale = 0,
 						INP_External = false,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
 						INP_Passive = true,
-						INP_MinAllowed = -1000000,
-						LINKS_Name = ""
-					},
-					CURRENTFRAME = {
-						INP_Integer = true,
-						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "CURRENT FRAME",
+						LINKS_Name = "Animation Controls"
 					},
-					OFFSETINSTART = {
+					FramesHider = {
 						INP_Integer = true,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "IN START FRAME ON END",
-					},
-					OFFSETOUTSTART = {
-						INP_Integer = true,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						INPID_InputControl = "SliderControl",
-						LINKS_Name = "OUT END FRAME ON START",
-					},
-					OTHERTHINGS = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 8,
-						INP_MaxScale = 1,
-						LBLC_MultiLine = true,
-						INP_MinScale = 0,
+						LBLC_NumInputs = 10,
 						INP_External = false,
 						LINKID_DataType = "Number",
-						INP_MinAllowed = -1000000,
+						LINKS_Name = "Frames Hider",
 						INP_Passive = true,
 						ICS_ControlPage = "Controls",
-						LINKS_Name = "<p style=\"font-size:15px; color:gold; font-style:extrabold; text-align:left;\">OTHER THINGS</p>"
-					},
-					MyLinks = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://linktr.ee/asherroland\\\"')\n					os.execute('start \\\"\\\" \\\"https://linktr.ee/asherroland\\\"')					",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "My Links"
-					},
-					MrAlexTech = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/c/mralextech\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/c/mralextech\\\"')					",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
-						LINKS_Name = "MrAlexTech"
-					},
-					PatrickSterling = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/@PatrickStirling\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/@PatrickStirling\\\"')					",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						ICD_Width = 0.5,
-						LINKS_Name = "Patrick Stirling"
-					},
-					DETAILS = {
-						TEC_ReadOnly = true,
-						INPID_InputControl = "TextEditControl",
-						TEC_Lines = 6,
-						INP_External = false,
-						LINKID_DataType = "Text",
-						LINKS_Name = "About",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						TEC_Wrap = true,
-					},
-					SpecialThanks = {
-						INP_Integer = false,
-						LBLC_DropDownButton = false,
-						ICS_ControlPage = "Controls",
-						LBLC_MultiLine = true,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						INP_Passive = true,
-						INPID_InputControl = "LabelControl",
-						LINKS_Name = "<p style=\"font-size:13px; color:gold; font-style:extrabold;\">Special Thanks</p>",
-					},
-					X_Session = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/@XSession\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/@XSession\\\"')					",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "X-Session"
-					},
-					DavinciResolveDiscord = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://discord.gg/davinci-resolve-community-714620142096482314\\\"')\n					os.execute('start \\\"\\\" \\\"https://discord.gg/davinci-resolve-community-714620142096482314\\\"')					",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Davinci Resolve Discord"
-					}
-				}
-			},]]
-			.. uniqueName .. [[_CALCMAIN = Calculation {
-				NameSet = true,
-				CustomData = {
-					Path = {
-						Map = {
-							["Setting:"] = "Macros:\\Asher Roland\\"
-						}
-					}
-				},
-				Inputs = {
-					FirstOperand = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMINCURVES",
-						Source = "Value",
-					},
-					SecondOperand = Input {
-						SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVES",
-						Source = "Value",
-					}
-				},
-				UserControls = ordered() {
-					HiddenControls = {
-						INP_Integer = false,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 4,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Hidden Controls",
-						INP_Passive = true,
-						ICS_ControlPage = "Calc",
 						IC_Visible = false,
 					},
-					CONNECT = {
+					ConverttoSeconds = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "ButtonControl",
+						BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+						INP_MaxScale = 1,
+						INP_Default = 0,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Convert to Seconds"
+					},
+					InAnimLength = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 24,
+						INP_MinScale = 1,
+						INP_MinAllowed = 1,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Length"
+					},
+					OutAnimLength = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 24,
+						INP_MinScale = 1,
+						INP_MinAllowed = 1,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim Length"
+					},
+					CalculatesfromCompStartLabel = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp Start"
+					},
+					InAnimStart = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 0,
+						INP_MinScale = -50,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Start"
+					},
+					CalcsEndHider1 = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calcs End Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatesfromCompEndLabel = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp End"
+					},
+					CalcsStartHider1 = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calcs Start Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatesfromCompStartLabel3 = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp Start"
+					},
+					OutAnimEnd = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 0,
+						INP_MinScale = -50,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim End"
+					},
+					SecondsHider = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 10,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Seconds Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					ConverttoFrames = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "ButtonControl",
+						BTNCS_Execute = "]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression()\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression()\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression()\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression()\ntool:SetInput('FramesHider', 1)\ntool:SetInput('SecondsHider', 0)",
+						INP_MaxScale = 1,
+						INP_Default = 0,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Convert to Frames"
+					},
+					InAnimLengthSeconds = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
 						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
+						INP_MaxScale = 25,
+						INP_Default = 1,
+						INP_MinScale = 0.00999999977648258,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Calc",
-						LINKS_Name = "CONNECT"
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Length"
 					},
-					FirstOperand = {
+					OutAnimLengthSeconds = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
-						INPID_InputControl = "ScrewControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 25,
+						INP_Default = 1,
+						INP_MinScale = 0.00999999977648258,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Calc",
-						LINKS_Name = "First Operand"
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim Length"
 					},
-					Operator = {
-						{ CCS_AddString = "Add" },
-						{ CCS_AddString = "Subtract (First - Second)" },
-						{ CCS_AddString = "Multiply" },
-						{ CCS_AddString = "Divide   (First / Second)" },
-						{ CCS_AddString = "Divide   (Second / First)" },
-						{ CCS_AddString = "Subtract (Second - First)" },
-						{ CCS_AddString = "Minimum" },
-						{ CCS_AddString = "Maximum" },
-						{ CCS_AddString = "Average" },
-						{ CCS_AddString = "First Only" },
-						{ CCS_AddString = "Second Only" },
-						{ CCS_AddString = "Add Random" },
-						{ CCS_AddString = "Multiply Random" },
-						{ CCS_AddString = "Modulo (First % Second)" },
-						{ CCS_AddString = "Modulo (Second % First)" },
-						{ CCS_AddString = "Difference" },
-						{ CCS_AddString = "Power (First ^ Second)" },
-						{ CCS_AddString = "Power (Second ^ First)" },
+					CalculatesfromCompStartLabel2 = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
-						INPID_InputControl = "ComboControl",
-						CC_LabelPosition = "Horizontal",
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
 						INP_MaxScale = 1,
 						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Calc",
-						LINKS_Name = "Operator"
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp Start"
 					},
-					SecondOperand = {
+					InAnimStartSeconds = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
-						INPID_InputControl = "ScrewControl",
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 25,
+						INP_Default = 0,
+						INP_MinScale = -25,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Start"
+					},
+					CalcsEndHider2 = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calcs End Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatesfromCompEndLabel2 = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
 						INP_MaxScale = 1,
 						INP_MinScale = 0,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
-						ICS_ControlPage = "Calc",
-						LINKS_Name = "Second Operand"
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp End"
+					},
+					CalcsStartHider2 = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calcs Start Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatesfromCompStartLabel4 = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp Start"
+					},
+					OutAnimEndSeconds = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 25,
+						INP_Default = 0,
+						INP_MinScale = -25,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim End"
+					},
+					CalcStartButtHider = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calc Start Button Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatefromStart = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "ButtonControl",
+						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool:SetInput('CalcsEndHider2', 0)\ntool:SetInput('CalcsStartHider2', 1)\ntool:SetInput('CalcsEndHider1', 0)\ntool:SetInput('CalcsStartHider1', 1)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
+						INP_MaxScale = 1,
+						INP_Default = 0,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculate from Start"
+					},
+					CalcEndButtHider = {
+						INP_Integer = true,
+						LBLC_DropDownButton = true,
+						INPID_InputControl = "LabelControl",
+						LBLC_NumInputs = 1,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "Calc End Button Hider",
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						IC_Visible = false,
+					},
+					CalculatefromEnd = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "ButtonControl",
+						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool:SetInput('CalcsEndHider2', 1)\ntool:SetInput('CalcsStartHider2', 0)\ntool:SetInput('CalcsEndHider1', 1)\ntool:SetInput('CalcsStartHider1', 0)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
+						INP_MaxScale = 1,
+						INP_Default = 0,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculate from End"
 					}
 				}
 			}
-				},
+		},
 				ActiveTool = "]] .. uniqueName .. [[_VALUE"
 			}
 ]]
 return s
 end
-
+-- Anim Utility Modifiers for Sliders
 local function animUtilityNumber(uniqueName)
     local s = [[
-        {
-            Tools = ordered() { ]]
-            .. uniqueName .. [[_MASTERANIM = Calculation {
-			NameSet = true,
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
+		{
+			Tools = ordered() {]]
+				.. uniqueName .. [[_CONNECT_TO_ME = Calculation {
+					NameSet = true,
+					Inputs = {
+						CONNECTION = Input {
+							SourceOp = "]].. uniqueName .. [[_CONTROLS",
+							Source = "Value",
+						}
+					},
+					UserControls = ordered() {
+						CONNECTION = {
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Calc",
+							INPID_InputControl = "SliderControl",
+							LINKS_Name = "CONNECTION",
+						}
+					}
+				},]]
+				.. uniqueName .. [[_INCURVES = LUTLookup {
+					NameSet = true,
+					Inputs = {
+						Curve = Input { Value = FuID { "Easing" }, },
+						EaseIn = Input { Value = FuID { "Sine" }, },
+						EaseOut = Input { Value = FuID { "Quad" }, },
+						Lookup = Input {
+							SourceOp = "]].. uniqueName .. [[_INCURVESLookup",
+							Source = "Value",
+						},
+						Source = Input { Value = FuID { "Duration" }, },
+						Scaling = Input { Value = 0, },
+						Scale = Input { Expression = "iif(]].. uniqueName .. [[_CONTROLS.In == 1, 1, 0)", },
+						Offset = Input { Expression = "iif(]].. uniqueName .. [[_CONTROLS.In == 1, 0, 1)", },
+						Timing = Input { Value = 0, },
+						TimeScale = Input {
+							Value = 4.95833333333333,
+							Expression = "(comp.RenderEnd-comp.RenderStart)/]].. uniqueName .. [[_CONTROLS.InAnimLength",
+						},
+						TimeOffset = Input { Expression = "]].. uniqueName .. [[_CONTROLS.InAnimStart/(comp.RenderEnd-comp.RenderStart)", }
+					},
+					UserControls = ordered() {
+					AnimUtilityLogo = {
+						INP_Integer = false,
+						INPID_InputControl = "LabelControl",
+						IC_ControlPage = -1,
+						LBLC_MultiLine = true,
+						INP_External = false,
+						LINKID_DataType = "Number",
+						LINKS_Name = "<center><img src='data:image/png;base64,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> ",
+						INP_Passive = true,
+						IC_NoLabel = true,
+						IC_NoReset = true,
+					},
+						HiddenControls = {
+							INP_Integer = false,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 12,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Hidden Controls",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CurveShape = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Curve Shape"
+						},
+						Source = {
+							ICS_ControlPage = "Controls",
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Source",
+						},
+						Mirror = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Mirror"
+						},
+						Invert = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Invert"
+						},
+						Scaling = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Scaling"
+						},
+						Scale = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 2,
+							INP_Default = 1,
+							INP_MinScale = -2,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							ICD_Center = 1,
+							LINKS_Name = "Scale"
+						},
+						Offset = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Offset"
+						},
+						ClipLow = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Clip Low"
+						},
+						ClipHigh = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Clip High"
+						},
+						Timing = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Timing"
+						},
+						TimeScale = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Time Scale"
+						},
+						TimeOffset = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = -1,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Time Offset"
+						}
+					}
+				},]]
+				.. uniqueName .. [[_INCURVESLookup = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 255, Green = 255, Blue = 255 },
+				},
+				]].. uniqueName .. [[_OUTCURVES = LUTLookup {
+					NameSet = true,
+					Inputs = {
+						Curve = Input { Value = FuID { "Easing" }, },
+						EaseIn = Input { Value = FuID { "Quad" }, },
+						EaseOut = Input { Value = FuID { "Sine" }, },
+						Lookup = Input {
+							SourceOp = "]].. uniqueName .. [[_OUTCURVESLookup",
+							Source = "Value",
+						},
+						Source = Input { Value = FuID { "Duration" }, },
+						Scale = Input {
+							Value = -1,
+							Expression = "iif(]].. uniqueName .. [[_CONTROLS.Out == 1, -1, 0)",
+						},
+						TimeScale = Input {
+							Value = 4.95833333333333,
+							Expression = "(comp.RenderEnd-comp.RenderStart)/]].. uniqueName .. [[_CONTROLS.OutAnimLength",
+						},
+						TimeOffset = Input {
+							Value = 0.798319327731092,
+							Expression = "1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))",
+						}
+					},
+					UserControls = ordered() {
+						AnimUtilityLogo = {
+							INP_Integer = false,
+							INPID_InputControl = "LabelControl",
+							IC_ControlPage = -1,
+							LBLC_MultiLine = true,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "<center><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABNCAYAAAAcolk+AAAACXBIWXMAAAEmAAABJgFf+xIoAAAgAElEQVR4nO2dd5xeVZ3/3+ece586fSaNEEggkRKqIq5SVAJKU0KxQMTFRiyr/Ox1XdeyuoptXVeCshYIzQhhQUEgKwrogkgLhCCB0NJnMu2p995zzu+Pc+fJTOa5z8wkGZDd+bx4wjz3nnbPc+/3fvtXWGuZwhSmMIWXAuSLvYApTGEKUxgvpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMpgjWFKYwhZcMvBd6wv6VnzYmLIt654T0o6j7yWldS1f2TWTMvpu+2G/LfS11x/RzvW2Lv9Ex7vXd8LnIBAWVdF54ad125rdG7Fv3ssVLZeusS4TyE8dV+Wk/bjn1Hy/c+Xj3ssXny9ZZv0jqK9LNF7e9+WufHO/6k9B3/aeMjSp1912m8ze2vvnrb96d8ZefuHAAyCY2sPayJavWvH+cY4WNzi+5/VE/btcNtE5gmRPDsDWPd03DsfzEhQ8DBzUYf9OSVWv2meiylp+4sAIk3qNY+7Ylq9Zct/zEhUuBf5/o+BNAGcgAde+reC3PLlm1Zv/xDLb8xIX/BZzSqM0LRrB6r/6Qlp4nRX4a+SPOQqTyo9rYoOiV7rv6W8D7xjPm9p++YzmZ5vP86fPx9n0lXue8UW1K913V3vfLj3657S3f/WLD9V3zkR4TFDpUUxdNx4yiKzWUH75hxI3Se+1HjDdtgUgvOL7u/ACVNTdDOv9OYMTAfSsuMqppulBte5M97IxR/WxQpPTg9Z8Adplg9V/7kQjlKZltI/uqd9ado3jfVafv6vgA15z6cuOl0ok3rcWig+A9QEOCdc3pR30OY77mpdKJbawx45pzd+HWXD3rmtOPGsCYTyatyQJoPer41ae+QnupdKIEYxGYKJgzkTVdc/pRr8GYuxvujzXoMPjSNae/4mteKn3gRMafEIQEa5obNbFCYqNgv/EMd/VpR0VeKp1IhG3876QTrL6rP7DVWjtN+GlEpg1MRGruqxLbl+5f8R7GIFjdyxa/RuY77xK5FmEj9+LzOufh73XIqLZNr7+IwVu/8Y9AXYLVvWzxN2XLzE9iDdJPA7buOEOoPPZbAHqv+UBkg0AhJcJLJ84PEDzzZ0xUrn3vverCyBqjQCIEyObpiX2rT/ye7mWL2ybKdfb/8sPPG2tmYw1CZsgdcVbiHMX7rt6lB/9XZx+31Bp9iUpn6jcQYI3FBJUxx1px9rFPKz+1b2IDKbBhhNUhK858jVHpzOQQKwEYQxRUSbd2ZDAm+WURrymKiegQVpx1jPHSDYipkOhx7Mlw/OrsY/+g/NRxDdcSaXRQJdXafrAwNpkD211IAWYMh3MpMEGIUYrlJx0SLbntkURas+KsY4yXSiXvlxSYMCSslM2kEqzeKy80CCGE8hBCYjGk57++YZ/0/ONF97LFR3QtXflgvfODt/1rJHJtylrTgA/dAdU8nfT84+i77hOm7ayLR7zxBm79lha5dkkUggSr7bjG7PnF3xvpZ8W4Go+Y718/F21+7KtIT4CtMdJCJv8M6fnHYUrbu5kAN9y7/EIjfF9IPKwChGxIhGV6NLc7FlYuOfEhmUodlnReSLChRgflpCbDxjpBqwbciJACHVQhm8WTTdBIBNkNCAkmjNDVCpm2DqwlkYMQUqCrVYaTqhve8YZ9jdbrk4ipAKyw6PLEiNX1S06IZAPuQ0jQQYAlItPRgTUNxMXdhGOsGpwHrAAbhFhlEEYjhUxcz/XnLmr48nH7HGGiCktuXa0mhWD13/QVLX0pEQKhFAIPUjkwhvS8ZO4KIHPgCVTW3vYT4KgRY/76S38QUh4nxMTtBNnDz6S6/h7R96uP/bjt7O+8r/+mfy4JQVaoFELuIKaMN0pJiIk/MMamMOHXkPEvHg9hjUa1zEjslpr3asqrbxrXDdh/05e19JXEU9gwRKQ9RCpPas4rGnec4J7e+O7TtPRSiZ2U8omqZQzR2GNdcJqRXvINK5VPVC7gN7eAnrwwMqV8wmoRC2Tau2gUsiY9n7BUGHG/3PSeM64QSi1RCY9U/GsTVcYm4MNx07tON2qs/akUwUK6rXNCY08EAhBSYkwytRJCOOJZjTDKIKxGaInwFMtPXFhZcvujNVb8pnefcYnRwVLVQLyV8X1koyo6CjTsYR1W38pPVaRKp4WXBh0ilETgYYVBSA/VOruu7mo4RCqPzLXXnrC+lZ9+jRDyLoQUkGqkamyI5kUfY/D2b7+3/4bPvhepQPiAxZoQi0RIhZAKJi+2UghEPL4EBEKAFQrVtnfDjt70l9F77Ueuan/rv51b73zf9Z8sSC+TF14aWx5wtNDPYHSACBWZhSfvsYu4+f1nG+WlRdKdI3yfqFQcFw/0mwvPMqqRHkp5RKUC6dZ2p7uaJHlA+D667AhJdqyHXil3fcPQOm8BaL1Eqvo2B6kUOgzQ1YlxVr9ZepaRfirxdSKUR1Qu4qUzpJrq2pz2CIQUjoDbZLcCqRTGWkwQIJQBK5BaYZWH0AYpZY0y3fKBt5akp7LSS7bRIMEEEUYHREHAkltXe7CHboHeaz9yhfDTS4T0sHgIAVHfJoTysVYjpIcNK6T3e824xssceCK9Vy59B6nsL4SQwqoUu8DTjIBqnk56v7+j+tSfEMob9jwNSXbGMT67N01jDB9cSLAW2dQ5JoeTWXgK4YaH3w6MIFi9137kEuGnLxTSE0P7rkvbQUikLxAig2yZOa6XxHhw60eWNCQwQnqE5cKY49z+sQu+qaPgk16mvu7LxnJHVC6TaW1n/KzvxCGkR1gtkcpl8Zuakn9/IbFGj+KQOvZb4LgOv76VVyqPqFIZW+czDLd//IKlOgwu8RJ0g1ZIpJAExQKZtvaaIWIyIKSHMVHD50J6HjqKEKEGKZGewGoPIy1CalASrMfyExd2zzjkyHbpe1L69UmPFRKpDWFUJqpWMJUd3BXsAYLVe/UHDF7KsQtCwRCnoiRojZUSkWpC5Tsa6lGGIz3/OMqP/vpygtKExZVGyB5+JsHzD0FQhFQTCMfmCqFAiElkrnaCADCAQGbHtsqr5umolhkjlO8j9l0qUAqhPPA80BarI0jlySw8dezlNNChAdzx+Q98TlcrX1OpVMIACoQl3InzqIfffXbpgJCiOdHSpTzQIUYbMq1tY463yxAKhCGqVEm3tINuIL4qDxuFRJWRbdrmLQBsItOv0lmCwf4Jce13fOGDDwshDm24PyYiLJXJdHTUtVDuKUjPx0QhsoFYI5TCWos0gDRYJTHGQygLJkIYiRQKKzQzX/7qToxOHk15oAMiHWECjYkCoqBa465gNwjW9ssv0MiUFJ6PEJ4TeKQEBaZvkyNWSKTyAIFqnV13nHDjI3UJmfSzmOrYb+uJoun4DzK46ttYQFiLNRrH68aEdtIRi4VCOiJZLSLGofROzz8OU+zp7rn874WQabfv0kOIeN0Soq1PIvwUQnkYIuQYyvYaGlz3nV+6aKtATPPSCey7UhBFBJXSmNP8/osf1lIqKRPGUqkUQaWISDfh6cnjGlAKHUXY0CnX0Rq8+hySSqUISoURuhsvk6V177nJ40uJEoJqaWL37++/+GEtLDJpr5WfIqiW0IEm29EFkygmoxRoHT+/dSAVCIiqIQgd8ysSjAfSID0wWiGVwXqaWYf+XcPppJ8irJQx2qKjitOBVqvoKBxBkSd8ud0/OacivHRaqJRboJAQcykWDwnoqAxCIVQKi0X6GdIHnDBqrKhnPaUHVtBa56HKveqdDN72TcQepiGqeTrpeX9Hdf09KNXsuCtrqYmEk0i0bO1fUePoTKk30X9rOIaU7wIZ77uK915hrYcUwtHCKESkPGSqdWxl+xB0te7hFWcfZzA6URrId06juL2bjgULx5wi3dTqbVv9l8TzTTNmk99rb/rWPY6JxlbW7ypy7Z1Uy4Nk2mdS3PRsw7bZ9i6aZo/ULwYDA+igQmnrprp9VCaD1Yb2+QeMe03LFx3c5je1bJdSJu/19Jnkps+itGkDlf7ecY89UVjrOP9GdiU/34SXydI0Zx+EklgdITwfYS1KGlACa3xEzHERwLY1dY3+8Xh52l52YOxDVo25q3AUdwUTJFjdyxY/ILx0WhA/MIj47S7cgy8lKN8dVxKsRjbPRqgUqnn6qPGCJ+/Cluu7F3md8xCZFtANHYx3CUOioQ1i5bD0nWLR2MlUuiMsxHKoezsKOW79ETjluwlKEFXifZdOA6eEU7Z7HlZbjA4RYXX8ynZ/5BqWLzp4Xz+XX0+DB6h51mzK27ePqZsxlQoincFYXVcVJYQk2zGN0vZtDGx4xvn4TBKaZ82muGUz6dY2BjesT2wnhKRp1t4UN28YQbCKm55HN7gfM60dWKMJy4PjXtPyRQcv9ZuaLwGLMfXFu+ZZ+1DcsoHKYD9hcc9LHUMwWiOVAmziY5CfNhNjDUhBtacHv7UTqz2QGiEEUkm08UBadLVKVG1gFTWWVHMroY7QJbDVKjqq7tBdheGoDZmYgkiqwx1RclwVUrmHHRX/DdG2dbFS2wPlYwa34s95ed3hou6nQKUInr6n7nlv2nyni5kENB3/Qax1bgXoEOeA6uTuyYPjrJxIGB/xEvRCdZBZeIrTN0kFykMgne+vAF3sATzn/CoEqmXGuImh8Hcod5cvOvirfnPr0yjP2ah3+kg/RdOMvShu2zL2wNZCJjdqjKFPKt9CtnMapc3PEQVVJ4YktN2dj0qlyXVOp9jTjfB9yn29iW0z7Z1kO7qo9HbXLsPoiN6nHkcbndivde95BMVBTBiM78e0llRzC35z6yWJ+9PUQtOMvSj3botdKUqTsj/OAOR0VknnhfJo3+8AvHQWAehylWqp6CRDqQCDUAqkhwkCyr3b3G/a4NpkNoO1lpbZc7C2MpK7CissuW31KIZqQhyWEMrdxCinrxIqfvDcgyNrC1JYjFMoe9m6vlc2KGJKvchsG8Ez99X1fs8edgbRpjUTWeIo6MGtAKM4PNU8ndTco7FP34MZ2OKuw1oYQwG927CGofeEEDEBGydU83RU8zSivueoGTmGlO1SYaMqIpVF+LlxKdvrYe9jFn3+wLPPTzz/6JU/pv+5p8Y1VsfLDuGgt15Q91zvurWsve5yKn29HHTuhUw/bJzi6wTx8E9/QLq1g+1PrCGVy/OyN59L+/z6ESuPXHEJgxufQ5uRIrKfbeKwd34osd/qy39EYePzE1pXpr2TA858R/Jali8Daxl4/hmssbzszW+ftD168LLvYaOII5d+IrHNA5d+m6hUREcBvp8h0CWkgGr/dvx8BxjPOYpGGj+b45Uf+W7iWPf94F8ICgOkUhkCHeJ5rZhKP1o35q5gAgSre9mZkfBSsUXNg9h3CRmLfwpsuS9WvBknngQVVOucum/66rq7QAfY6iAmgUio5ul7hIAM3voN2s7+zqjj2cMXE254GJo6sdXBmnpp0jCcn43dGiYqgqbnH4dZfRPYoTcaRD3PIJTndGI6RHjZcVtkAYSfpnvZ4uO6lq68M93SyozDj05s+9i1Px33uE177d1wLBM4wtC+/wEN2+0OWvbZj771T2BMiLQe7fMPTJzr6VW/pv/pdYidFfBCNOz35M3XTZhgAQ3H3PCnO+iO9T5+Lk/XQYdN2h5l27sY3PCM0yPOrG8cm3PMIp69axXSRPFL0jEm5Z5eUi0dWK2c9bJS4uUf+FTyXt1yHdYalJ9CRyGt+8wdyV2FQ9xV/VCe8YuEUipULPqpIXFQIVDYOGxJVwZixXXMRvrZRN+rcMODCM+JIqYySNRTX6eQXnA8NpqYw91wqObp6P6NVJ+6u+753KscN2GjEGstwsvUuLI9jtjSJIbEQkCk60d/JO1Hat6rHXclJdZ6biwdAgqpPISfI73vKyc0pte1H8CHJnQtLxEUt26isr2nYTjJ/3VU+noIq2X+csk3E9ssePO5eJnMDhcYIdHVCirlY4OqI2B4eLl8Q8K6/rYbSeVbwRo0BkWT013pamwZrKDDsL4ViHESrO5lZ35UCKczQcjYBV/GD47n9ClSOXHHWuf45+fBT37T64EtYMFGAUJKwuceqNsuc8AJu+036E2bT/nB65ySfedznfPw9z4CmW4CXFydmSSCpQvdOPE5ZuWkSLRKmnJfLdB61JqnLXBcbKxsx/Njou6cG+sp2/XgViqP3VZ3PJlpRbXOPnwXL+tvFsXNG7Bh4BTlwk4u9/wSRXHzBkwYYoKAweefprh5Q912qaZm2vc/EJSHCQP8VAapJEJKBjY8h1CCav92Fr79vYlzPXnLdZS2babSu41Ia9rnzcdSIQqrmGqEDiOisMqS2x5JiKYfL4cl5LeRsYOiiD/Sj32AJEJC1PM0zjqowGqsjRLN9cHT92B1gIlKCC+FjSoECQRLpPLITMMsFmMvX6UQQlK876q65/OvXILItCDSTUTbn9utuRrBVArUqK+Iwx285FiqyqM31z2eWXiKM0YI0NUB5wfnZTC6itc6q74I/vgqbJjMqcp8x8wJXcxLAIUtGwgrFSc+T1Bf+H8FhS0bMEZjBURB2JDLOuzv/wGMdnG3Qw7LsdVbSgDDXkcnJ5RYf9uNZDqmgzUYDOgMplrF6CpRUMFWKuggSOSuYLw6LClFbA7Y4Xs1FLxrne8V1jjZXxusn0aqVF3fK4DqE3eAjpB+FmssQkqsCdGDW+u6P2QOfiPlh1Yi1PgtasNhTYRQKaJNjxH1rK9LSHOveBuFu3/s3AYmC1Yz9ANjY4tTmDyfLvbU3ZMh5TtRGaII4cduGSpP5uD6rgzBM39GdcxNXpvym3bhivYI+tY/gZ9Pnr6RiNG7bi1BcaDuuaduWYmXzSD9VGyu33NREy80ep96HJkQ/gO7vkdP3HA15d4e0pkmjA4YfP4Zips31NVlpZqayU+fRXHrJncb454t5Xts/+tjLHx7claoJ2+5jrA4SFgsEGlN5/wDMUEFHcTcVRARRVWGB0jXw5gEq3vZmZuFl3KuC8J5rQspY3HGA+XeXEIprNagPFSuA5HK1SU+4EQj4SksGiE8JxYKRfDU3WQPP3NU+/T+x1J55NdjLTURMtOKHexBCCjefRmtb/7qqDb+XofgzziAYMPD2HBiEfUTghBxtobYUphuELSqIyqrbyT/mveMOpWefxzl1Tch/BQmqsYpYgT+7NEZX6Ke9Y4jTshqKpunY0o9L3j2WQDpezxzx808desNdc+rVIrTfrwysf9DP/sBA88l+1Sl29rxs1l0ME53g79BhJUS6369gnW/XlH3fCrfzMn/cU1i/3u/989UB/vrnjNhgJ/OOLdKDWHF6bKO/9L367Z/xQc/w91f/zTWGqRUaB0ilEeuayYL3vS2xDWsv+1GVCZHWBjAYDCBh6kWMaZKGFSw1bG5KxjPK0fK6U7R7nQu7u9hvlcCou3PgFAI6SGlh6kOJvte9axHSA/VdQCqcz6yYy5q2gJk295EW59IXIbws5DgWDcmBGAjRyRMROn+X9Ztlv+7v0f6WcLNj+3aPONZiN1hihRCuvipJEhBuPWvdU/VlO8o8DJYqUgnJEYs3Xc1NigkhuCo5ulOrHwRIISkvH0bUblE6z7zaJq5F9mOLlJNLahUGpVq+MLFy+YIiwV0UCUY7CcqFWmdM5emGW4cO4le8y8UpJAEA3119ieDEIJMe+MME+nWdnQYEBQGiMololKR5r3mkJs2g1zXDPzcDhWCDaoMPv8MQaG+82t+5mwybR0ExUGk71QtAph34psS53/yluuIykUqPVuItKbrwEOAIe4qxIyTu4JxECwhPOHkfy/mrOKbXrpQHBc/qJxoJzxEphXV1JWY90qk8uReuYTMASeM/jTwHcq96vzdii20NkIYl6MneOruupZAkcqTftnrmDzt7JD+ihqn1TDw2OJMxRsfqXva5dGyCGEhQdk+5O82xNElQaQapPqYwv8phMUiD//sB4nnDz3/g6QyeVCOWEnlJXJXQWGQdTdei8rkwFqMNeiSremuHHdVRgfj08U0vIu7l53p8koIhUtEpeIQHOUoqwJT6HEWK+m8362OkLmORC9rFacDTvokweucNyGv8J3hiK4EJEqlGLz94rrtsoedgT/jZbs8z7jWgoiJkUZmGucxEkJSefQ3dc9lDjkdVMql9Mh31le2P/F75xg75qJeuvqdKexZROUi3Y8+mMhltc8/MNY5CqJKmbknJpcEWLvi51gM5W2bHHd10CFA1XFXQYgJNFEUsOT2R8cVltH4Lh3meyWUrImEQsia75WpDiJq/lgaoXzSB544nrknDDVtf2w0pphbF9YYF9hpIhcZI2Si20CjnPO7jSHrIICXwpu+oGFzaw26b0OiS4bw02AFqbn1la7VdXe6lDNj4oXKrTOFlwLKvVsbclkLl1yIDqqoTJb93jha7wyOu9r057tQ2Xwyd1UpOt33OJFIsLqXnflzIYd8r1Rs3IrTyKBc6uM4dQyANSEy0wp+ZlzZB3YF2cPOwE4weT/E8YIyzpAQZzkQUlJ59Ja6hGDyIHbQBSEQmdbGnI0AYQ1gqPz1jrpNvOkHYIJiXQfdcOMjmLAMCOfS0CBwV6ReNCPhFP4GEQwMNOSyZhx+NBjDrKOOIdVU3+3IcVeW8paNo3RXOgjQVc1EtdLJT4uQ5yPksIBUD+L8587THaJtTyGkwmqLlRKrvAmFhEwUqnk6dhfUS0KlsFZjrXY+YiaCKEQqL1E0nBwM6bAkwhpkLjl5nxnchpA+4CG8LJW19Z0+0wuOTxTBy6tvxFYGY4OIilOH1IfYg+n9p9yd/negtG1zQy7rFR/6DIe84wN1zw1xV16+CYxx3FXZYKqB87uqVJ0hbIJIvkulEs4bLPa9kqpmlbJWxfmXhONehOc8xYVMFKdsUCTqTjY/D4dI5xO5tPT84yndf+3EYgylh7AyJs8i/rhrMpUBqk/eRXr/Y8c/3u5ACIayjTbiFvXgFkjlMDZEWh8hJMFzD5Cac+SIdl7nPPJHv6NO/62Y4vaYg9uRRz4JdlctsDsj1hWKl7DP0xQcKn3ba1xWPS6qke/X2hU/B6UobXyeyBi6DjwEXS67lDOVXVPrQALB6l52ZnFHoLOPq5/nlOpiKL2MjtOxIJGeh0g3I/Odib5X1XV3UfzTfzYQgSwq1+5EpWxHXV8pcKE6lcdunaDF0CJbZ6D7NoCwCCGwCNAGISSlv1xLas6RE8pNtUuo+WA5D2FT7E7mSHWE9DOAxFiNwBVk3ZlgAXXHqKy+ETO4DXxnqLDWQAP/sgnXLKsDlwo3dDrOPaDEF5OYG2sK40MUVL728M9+8Pmj/uFz4+4TFAbZvm4NXr6Jas/WHdxVOUDvRlwwJImEUuaQQwn5RPz/OP+SdPmXooHNIBRSuRw6pjKINz3ZulZ98k73hzWjPjLT4nyBvCzCz2J1mBioG1fVmeBlCkcAvBwwNK9FWIMwFikVxf/5+QTH3AUM02tbCSKdrDeyRsefEBl7x5tCz7gDs6PuJx1XHKdjdsxxA67U3x23BouQzqFYoBCexE8le2WPiZgBhv/FEcsvERvH6Zf91xe2PfpAoi6rHtau+BlhsUDxuacdd3XAIVgG0Xr3iBXUIVjdyxbvK0ScBUAo9/8hcVDGrg3xgzCUlYF0Myrf7gKV68AGRWxQJLXXwpGfOYcjm7oAO8L6J/0MlTX1LXgAmYPeMGEzvLUg8q2Ok4i5RWKxVngZou4nE+MZ9yxErQZFkuf5DmiEVC5bp3F5s0t/vmLMGSqP3RbHLeJ+J2NqgeaJq/LH9NmrD0/F94mzIst07FGvJs4duWSNjlpJK14yD/WEYa2LuX2JoNyz9R8b6bKGIygMsu3RB5GZnIsZtAZTCbHVPfNj1nnq5VNInI5IDN2MXvyWdr5Xum9jXCBVYYmrJTcI4i2vvgmQmLCKCWMfDCtqaYKB+OZ0+aFsUMAUtiWOl97/WFRzcvHRurDOtUG2znLKdxPFSngDJkAKRemeX0y+1VAOZWugll4necHEhGpI76Ywg9vGXGP1iTuw1eKOeE8BVk6CTsmaOPhdYKxBplIIqVBD3PkEIT0fi0BgXKrnoXvifxOEQGUzqN3hQF9gnHXt7786Xi5rB3e1nsgYpu1/0C4p15Mw+q5SUtYCnYc4qDh3uMXV87M6ANSOqG2hyB52RuIkjnOx2KCMtRqpJFiDBbz22eA7YmeHmd1NpZAoFgIuFfB4kxyFZVe7zQJao9ItMYc1pGtREHvtF+6+bHxjThgxxzFUfUXKhnm+bFh1baXc4UOGxVYHE10cwIU+2bBcm05AzSrpgq8TVudn6F62ONkDMIYJ3W8kPR+UdEHFUqJUBimUO24EaoKe80aHMYEVWHD31iRWen5RICUqnXEhNQlVev5WMR4uy3FXDyDTWWcZLO/5mNwRBKt72Zl3CKHiQOch3ysnDgo5FIbj1SplWCyyaToIEq16enArNio74jKU4N7YWI+Ek9Xih9iasPZClekclTW3JC4896p3jj/fu5+NM6HGc6dzWG1iVwfHaVkTIIRE96xPDIXZPVhGuDUYk5i8D4CwjPAyNW5QSOWKFCif6ro/JHYr378i9p53Cn4rBMK4AhCN0st4XfMA3jVWxZrqQB9oG8eN+lgLynf3hbEGY0JUPoP0VHKJqGGwWrv7DBnvjnH/WU1ULVsh5eYxB3kpQHmoVLb2kbsRtfFi4Kxrf//VnsdXN2yzdsXPCAqDVLZuRE9SbYSRd5SUx48sMuHV8l7Vikx0rwesI2g6RJf68FpmJj7klcdXQVDG+hmEtY5oSIMUjnjVOA4sw52sbGUAY01D4iHSTdhqsaGSHsAMbnE6A+XFOneDapsV53J3b3VnhpfItE/pz8vJvXJJ3bFstb441mh+3ftsrGAfKkLh/iSqJl6f1SGqdSa67zmsVE40HOJ4raH80HV400YbOXTf86imTldnLwpizz8A4rYAAB8oSURBVHrHqQkvnTifKW5H5trmmm2NbzRrrbMKK4mUHvge/c8+TfNeczHGj+PkFYWtzzH39acljlPZ3oMxFuXhXpDY+FZwfnK6EtjFy2+Vv/3wufXrab1EYADhe3g7VTqWLw0OawSLGxaLm4BZSY0HN7pcckGljEqo7Ly7GDFqYpEJOVRkYqjii4Swisw0E/U9R9D7LMEz9ybMkEWmMrGuKC5bHVvqrLGgLF7LdKJCN4QBVgcIL48p92N6NxDe/JXExYtUHpltIdq4OjFjKYDw0ngd+wLCpaESCnSEkB5GV6nl1rASqVNEvc8wkDCv3zxtp7FT2KBA6d4GynChXLaJ2CdKCIlKZwk3PUq46dG6XWSmGa9rnhNlhXUB5tYgpY8p9VG6r046Eenhd85z75NU3tUoNBpUCi/bRrBhtcthXw/K07ZaXBRVcg2L3vn5Jky1ipfJosOKKw0lJToo46WzaK3QUYD007Tskxzx0PP4apTvO2IqBFYJV7AojIgqRfOmn9340tFKJ8CEIX5CtWwxGTrFPQphz7v9kRGLNHoM9tsagoH6aWwaTyXrpzmtgxrB6l52ZrV+kYkhCxAuHW9QQeXbCasDmGKlvnLVAFKDysSFStmhVB8qJ2osSOPs+ypd09dIP03YF2f9VPXGdpVtZK4NohBdiM38dawuQqWRuU6QAmsMQrriGBhX4FHkO6BvE0JqED66PEAUxbUKdxpP+nlU2yxnAdtWAC+F7+cJCpsS58eAP2MBQnqEPU+DEPjZNoKBjZhgoP6avSxex95Y62GtxevYh6jv+ZryPerfMHo+A6p9tuMgpXK6wUwbYXE7pPPYch9Btb/+fiJt5wVX1E4EF412Qh2OTEsb4WA/GIOXzmGiAIOl3LMFa6F51t7ITAovnW7oWFju2RoTK4mQhta588BUqJT6q6ddesMumiz/liBI5ZNFfjuSefmbgpXYt/3mLy8IRRVSfv7cWx78l/G238FhSZnaUWQi9r2SyinbrYerdVDEWk04mGzBwwQ6ZiliImSxGIQ1rsiDxREMaWL1KmANnpch6N+EKSVTaJnKoqYtQA9uxAx0J7ZDgMw2g/SwOkQIH0yI1SIuPBqLhmhU+2yinmcwpfrjCc9HNk+vuSBYK/By7UT9W2iUEk5lmyDf5a5QSGSuDTOwhSBBpEQqVOssF45jjLOsKPe3EopwoP6eK5mC1jb3xYJ7WyhIpxFCuGwadWGtDcsndy1deevwoyaK2PLQvYnE5uXv/xS/++z7UbkMYaWI56VQWIKgSlgqsr1UwBRLzHrV8Q12B8JSESU9kAJtJEI0segbP5hsT9HJrovkIAQ9jyVwsjFSLclhWS8qhNRvue6PL0RyNHvOr+6aMFH0ALqXLT5LqPSIIhM136u49h3GonKdkEtIFqbSt7ac/Lk3di9bfBzS+4OouSzYHQ/SkKVKeIBFxI6BNgoh04SfSchcYG0sFqUhKqOy7ahsPedRSdS9zunetAXh0hBbrcGLlc9x6IjVxmU7DUqo5mku5fCIoRRmYGtcyXroGlPOOz7Tgp+UFiYKXMCx8l0QkHQcnUw3IafVcRSVCt2/xRFRa4EIa1POy9vGFtlsG362bWS/oIwu92M9P64oDeAKgAghsZUCqn1v6vBwFpU6tuXkz/2x3vKFlH96etWvX51EsPIzZzPn2BN57u7b8VIZZDZLaeumuLyYxJSr+K1tvPKiL9bfH1zK3nLPNpACYyy5aV120Td+MKlvdCmkVZn014AvTOY8OorG5dKhUsluQBOCEHuECFsATz105hW3HrHbaxoDUgj75qtW7dLv7SipkCtGFpnw3INmcbqmoJDIwAqhdOsZX6tR5K6lK+/svvRsdoh/MaEy0hGd2DwvkBhtIGoQYiOUK8vuZbE2gjAx24DV258WrhBqnP7GhAjjgxqa32JlBFYiohBrwvpWfgF2KPBYDW2Ph7UCW0leqxUCittjp0nHOWDBJHFUAszAFte+ttcaawXSWkwUgB1t1bNCYnqfQyjnoCmGyoUJQPjYsIqlfqyWUOqu1jd9LblKAPDGH1z5mv/+9PtsUvwYwOHvuYj2BQfxyBWXMPDkWpSfcoVzvRRt8w/k1Z/4SmJfgL/ecCWZ9k6ichFdrdiT/+3qSSVWQgp92s9+7d38/rOTFaK7iahUHLeYl5s2A7UHlO5SCXvaj2+Sd3z+g7stXwrPf/+bL71p2W4vaqx5hNSn/ew3u8zBuY5S7VRkAlw4SxWr69/8Fmnaz/lufcWocxySWOvEQEwsFlrnaGo1Nmzw8CMQUbXmjGrDBg5rwruh7exvL+5etvibKPVJYQRW6Nj1wiBEFPsyRQjpO6/7hBtLF/tBOMW22xdHxG2DQhEWJ3YJlXLFTGMXEBoQDl0ugy4ilF/TrYHBWoXQIaZOzi+LMqb3WckQgRPuqJN/peNSk4RUoXTb2d8Z900SFAusXfEzDrvgw4lt9jn+Dexz/BsA2PKQM7i0739QQ0IFjrvqfXItUaVMWK2Ys67+3SQq1y1Cqc2n/nBlomVrT+DwCz7M/qecNa62f73hKrY+fB+Zto7dmlN6nn7DD6/ebdFNSGFPueRXL4C+yiKUv/bUH1570O6M4nUvO3O9KzIhd3id6wii+kTCCmHbz71krAv8pMV8e8iNARWLhcIgGmQosEI4Z8o4i6YIkh3PrJRB+9t/VOOru5au/FT3pWd+DGkUcaI+JKAliMgFa9cJ/nWuYFbbynaFTIHyHDmTEhEGENYnAlYIawrdAuX6OGuqcPPUCYGxAEpt1v2bZwjpC1Qc54d2hMpGiDqFEobvd8+PzxmSr11fKV3q50p9ztNKYdvfPuZvNQo9jz00V1crT8859qTEUurDMd6KxEFhkAcuvRgvl6PQvcWcc+3vJ9USKP3U50/67mXjVujuKvIzkysm74yN99zJ1ofv2635pOdvWPSty/berUEAIZQ98Xs/fUGU6zKVPvukb1523W6Pg5T7IpUTaazBhhVsVMHoap1PsHIcxIqupdd/x5Vhd5wDACbABuW642pdRQclTDUmkjrAhklrqNq285aJ4cSqNu+F13s2jruzRseuE6HzsK97TYFpP2+ZMIVtNc20S1+ssWEpcX6jw8/X9kEQV3JutHdunva3/ccsrDnHrdHs8EGLqqP2Rrt5vjVqv208H84RNGGfrDHhMbtCrACWrFrzTK5r2pY/fv1T9K5buytDjEJQGOS/P/1edBiw5YF7q5NKrISwJ3zzJ2LRN/cIsfqbMuepVPrze4RY+Z5e9K2fTD6xkmrot9htYgXgUogaA6aa+MtYIYKud189MS2hNS7MUGusbpBfXsjNVldnilgMa+C9bjvfc83YG2z0pVZwoTA0yvE0eqwh66VpEFEu5DOd775qbq2LANG4z6h5upauvK770rMsWGF1ALoeVyW3d737qlHWDbehtnGaaCFu7Xz31W9MbjA+vP7rl8687aLzwwcuvdhbcMa5zDlm0S6PteWhe3n4pz/AaM3J3/3FpFrphBD2tV/54R55EI3R9rVf+Q/5+y9++EUnWsYYXvuVH+6RvZOp9LbXffmH9fNA7UEIpexrv7JnjSle1/tWTMoN1HXh9S+KZ1zX0pVLgaUT63P9BCOp437v3bW967rwul3am673/eoFTRB10vcv93//xX/YuPryH8169o5bmH/6W8Yt/oEjVI9d81MqfT1k2jrsSd+7fHItgZ5vz7z2jj0yh/RS9q03/O5vw7tTCPvWG/5nz6zFmhWLl9/6lj0yVgNIL2XPvHrP79+LU4xuCi8ZvPbL/77X8kUH75tpbXv6/ksupnXfefj5ZtIt7bTPP3CEkj0oDNK7bi2V3m5K27YQDPShsjl6Hn/knUtWrbl8V9cwpNSvh6jsuHc/m9en/+d/jXk/NxJxyz3O183PN5vTf7JyhMi6p0Tj4lbnaCw9v7d33drExG6lrZuH2tkzLr9lzAe/0R7pagWiiGrf9jcuWbXm1sSG40Dj38LpiL10unzGFb/N7c48SRC1Ci5TmMI48Nt/OPfPXjZ3VGz1wcukcRYHS1goID0Pa40td2/562mX3Ti2xn4MLF908BemH3ZUojuC9DyKmzaufvMVt4wueT16rMOmH3bUQ43aVLZv3famn98yQly6+6sfD0o92/ZI8F9YLtH7xJqPAT+dfthRDcOgoqASnvLDa8eMkr79o+80toEvlp/N29f9y492m9sZ67cwWhMM9N78pp/9JrnA6G5iimC9gLjpPWeYdGvbmGJdVCppIYVSGZeiJSqXOOVHv6z1W77o4FUzjjj6hOG/XXHzxrsXX3lbLTH9r99zhkm3tgtrNDoMSLd1EJWK9qTv/kIC3LDkDVGqpVV52fhFaAwnfe/yUWv7788uNVhEMNiHSmfQ1QqppmaiSnn1G76/vEYkli86+Kw5x5y4olroFwAqnbEnfH3ZiIfk+vNONE0zZ9fmEFLaEy+ub6Xq/snZUZz7RwwRRPdISosOw66l16d3tD3nEgwX1jpLa7ve+yvVfek5I/MPWT3YtfT61h39zo4wwzJBDvX78TlmbFW7NV0X/sqL5xDD+v9tiJH/SzElEr4A+K/zT+4tbt3Ylm5tZ/6pZzd0Fehdt5bNf/mjstZy8NvfA8Dj1+2Qpq5909FG+r7wMjkOeusFteP3X3Lx0QC3fOAtRihPNO01hxlHHE37/AMJCoNsffBeqoN94jdLz7Yt++xHuWcb7fMP4ICzzndzXL98xDpWnHpk1LTvApVua6fzwEOZcaTTXQWFQbY8cA8Dzz516G0XvcOc9P0r5K/OOd6odFqUe7s54r3/D4DNf/mTuO3/nW9O+t7l8sYLTt9U2PzcTJXJkeuawfzTzhm6rrrEe/sV7zEy3SZ2MA3OIRjfgygQBOVUz3++3dqwWpW5LmS6dZhBSGK1Fdsvf4+V2Zg2CZwVt1pqGTaHlum2YcTFYnXk+mXGCpuxGC3UiDkw2Kg6lYR+kjFFsCYZqz75blPp6xFD2T/b5x84puJ681/+SLZzWq3ds3+4lds+cn6osmnPDPP2HzGOwL/hvJOsl89z0OLzRhW3HLLyPfXb63nixmsByHbNqI3x3F2319pef+4i07JgoZhxxNEc9JZ3kWpqJigMUty8gRmHH82cYxYRFAb58/e/LG75h7fbYLDfORwPW9OMw4/mvz/1XnHbRUtMMNgrhBCgNblpM0dc187oW/ExIzNtLo+0jR1jledSCRV7sEpAxjnmypbZaTE877v0XI62EdZh5zRMWMZ6Ht2Xnq29jn2EzLTUiIuNIxrkOPKrWWPA8/DMsHmVhy33u6SLU5hUTBGsScINS042Xj4nUvnkQhO969YSFAdGHStu2USmo2vEca1DT9HAs8RawnKRWUcfO4JYFTdvoLBlQ41I9K1/gt4nH6OeymPV5z5s+tY9LNrmLaDrgEM5/F0fAeC5u1dx3799hUzHNHSlzBt+cBWppmaO+fy3uOPzH0xc0qs+9s/c9bVPCKn8OPIoOePpwC3/shQT/EhmW0cmc7caK9JgImS6CWsirNGo5r2gVoZTgoiDvofHW0kfoiomqmAJESaFP3v+Tu4sPlaBMMlFZofGskEV6fuj5jDF7Y37TmGPYYpg7WEsP+mQTal880x/jBAVgAd+8h0233f3yINKoZRH50GHTnjumS9/Nfu+/pTa97UrfsGaay/DRBG5rhm07rufs1KJkTRhCL1/fUBIz0dXKhz01ne7Y+vW8sAl30QHIVZHeLkm7rn4HznuS98D4KC3XkBQGGD7E6PzeuVnzmbOcSfx/J23UxnoxQrjOJSdsP0/36ZtFMqRi4qz3Hoe+Dm8fAc23YLoXk9U3l4jVUL6Ln3QTtEFqa79wPMxsgkhQ2yxDxuWCTf0xR0FUghMnfXsDJlqctleox2REkIoRDqPbN93zP5T2HOYIlh7GMIybp8uL5Nl2qGvABz34Tc1s/n+P7Grwffdj69mAW+rfbcYctNnkc43s+WhP6P8FF5Tg9qLFjJtHez3xsU1d4Wnbl1JdsZcUm29VLf3YcxAzdMenOhXj4ssbnZ5uw5+67vZfN8faZu7gP5nn3RB3cPQu/IzRuQ6RxWLlvkObGUQG5Tw/BxEVXTPash3Iv2h0ECLLWyF3IwRub5Vrg1d6oVAI9uaMKGBbBsyznhhdYCoDmKz7cixqi9JhenbQO7V76qlAS/dfw16yxOYSmGqXOwLjCmC9SLCGkO6dYcrTlQusverT2DjPck52xvB93xWX35JTfw76JwLKG3ZRGHz80w77CiXVaFBIQpdKSGlovNlOwqzlrZtRkqNap1BYetWKJcRXTPoXbe2ZjzwcqMJVmHLBh5ZvoxF37yMIy/8BH/61ufrzimVJ3LHjxYrbVCkuv5/0P2bwEtBqR+jA3ILT6kRjvKDvyIc3IY0EU2v+0itX+mBFQiZwpoABrciUnny8Rw2KFK85xfIsIzonEf2kOQ0zuCIk+nbgNc5r1awVj72W6JJylk+hcaYIlgvIg5754dG6LB6163lrzdcuWuDCYHwPEwYcOtF7+CYz/4r+ZmzecWHPktQGGTtr35B7xNrCAsNMk9Yl8diuBVTKA9TDZDCJxroByFIt7aNWHe6tW3UWE0zZtO95iE2P/A/zDzy75j9quMTw66GV64ONz6CbJ6Oap5Oau6rsEGRgZu/Cri+wwlH+ZGb3Bqz7URb1pI90lkfde9zVJ68G2EkRnrkjzq31mfwjn9DlguImQch853JlbeHcH+dVNRTeNEwxdG+iBiyGA59WvbZj8KWjbs8nokiwsE+/KZm7vzyR/nj1z9NcfMGUk3NHPb3H+LVn/kGRod0Hjimj+XIcYMQbEjNcrezGGVGK8TyM2fTMf8gHlh2MQCHv/si0q3t6GpjS1rhDz9k4OavUvqLIxQilafphI9iveSyYXrbOqpP/bFWrzF75Dku8L7Sj8y148921xv1rEf3bQACTHlkZls9uJVw4yOjPkIoZOtuxxpPYQ9himC9iOhdt5YtD91b+/z1hivjituCsLgjX1i6tR0zLM2NEMKFW8QICoOEhQJYQ7VSZfDpdQQD/RR7tvL7L36YR6+8FIBUUzPHfuHbieW3hJRIzxtRMNNqjSWui6gNCCh3j6y8VemvbyUTUuLncty/7FsAHPrOD9L31F8b7olI5TH9Gwieu792TDVPR2bGMGIEBQp3/bj2temY9znu6tgdYaXFP/0M+p6FzgOxO6UNKj+0koGb/omBm77IwE3/WPuEGx5C6kkurjuFcWOKYL2IeOAn32HVx9/Fqo+/iz/+y6dd7J3yUb6HSu+ow7DX0cfjKv5okOBl8zBMTd375GNkuzrJztyXbEsrQRRhgPKm57FG8/yffldr2yhvk8AVzHVuDw5Ns/YmqpbimpQSL5tHKH+ED1hSpRQdhQQD/Wz+y5/oXbeWGYcfzcHnvnd8mxMF6MGtO743qCwOIPLTiLqfqpUx8/c6hNYzv4lqdlE2lcduxVYHUCLlco/VzfjpsuEOGxWZakZXGmQbmcILiimC9SLCy2TJzZhN69z5NO81h1Rrp8uGKiSFTc/VOJ2uAw+ladZelLq30jR7Lpm2Do5470dr42x96D76nn6S3vWPIT2Ptr33JdfRRVitUtjwLLmumSPmNVF9nyOZy1Lp285j1/60dmzuCafhZTJE5QAP6FiwEOHtiAt+6rfXo4OErLRmBwG457v/BDCuNDX+vq8CL10jNkDd5Is7Q0hB8Y87KncP9bdB0em7BjfDrAMg5SN24jKzhy+m5fSvjPio6QuwURXVOeW68LeCKaX7i44IIV39IGMNXq6JTEsrKpPl0asu5cj3fRyA4//5BxQ3byAoDI5QigeFQTb95Y8I6dE6ex8Ou+DDNe5ny0P30jRjZDbMZ+64JVn5ncmjfB8dBLXKOe3zD2Sf153Chj/+jqa5C0jl8xz7hYtrcz9583X0PP5IzdN9BKx1dQuBVFMHj171Yxae+77G2yGd82d6v1fXDoUbH8FUC1hrB4CE6h8OwktRWXsbmQNPqh0rP/JrbGEbItuG3v40sm2fWhWkIahY0b/z+oFRPl7Jk0PPT8/bSaGn6XzXNVMhO3sIUwTrRYY18XNhnV4b5WG1ptKzjZ4oYs01/8nBb3NOnPmZsxnuRdW7bi33fu9LDGx4BhFpqjuJZjuHAG156F7WXHMZ/c+sq7sWYwy6WqXSs5U/f/+rHP6ei5hzzCIOfuu7mX/qWyhu3lAjlr3r1nLv9/+Zwqbnk6/NWrQ2CCEpbd3M83etYu7rT20oluaPPr9mJQSnKC/84YfohDJno+bUIen9XjPiWGrfVxKs/x+UMWhdRZS2Y1Ijc6rrwa2YYSJo1LMeG1WQnsA2KD1Xg1CoYTGIVggwGlMeaNBpChPFFMF6gTE8r1I4OAAWtLZY44pIdLzsYEqbn4NIE/T3svnBe3jurtvZ93Un14hFcfMGnrnjFoJiAZlrQ/As6fZOMJo/f/+rZDu7yE2bxd7HnECqqZktD/65Vvgh095B/zNu/uKmDbX8RoWNz9O+4GUMrn8KrCMya1f8nEeXL2PuotNrcz/12+t59s7biUoFrI5om7uArav/UrumnfMltc6bT//TT6GEK9hx51c+xpEXOq6xtGUTzB2dEsoMbiV4+h7C5x9E9z47ytk0CSLTQmrOyxEpR9bDjY/g73UIXuc8VMc+mGIPFEJ0UEDlRhKs8kMrqa75LWBRnXOxUYTw09A6F4IxdFgqhVA7ssAIqSCsYKtTxGpPY4pgvUBIN7USFgvc/6N/rR0Tfop0vhWhA6LARyinC8rNnEP/+r+ihKT3ybXYcpkHl13swkNwVkLf92nd/1CkkHQd/gq61zzkypGFVSr929n2yAOsv+0GsBYpJc1z9sPPNyGbmlB+hlS+iY33/oGN98ZOqlIy48hX07TPfm5u5TGw4RlsqcQDyy6upZsemjs1beYID/dUrpntax9m1cffVTvWNHNvUs2dpLJpgmIJpUN6n1xbayP8VPWIV502QpteuPNHmP5N+DMPxBiDUGmEDrGSZWjOTdzggc3YXDvZw10cZbjxEQZXfYf2t/3AuUYc8z76Vn4GKSXWKEz/RlTzSN3eUMiS7lk/7t812rR6xHeZakbM2B/iSkvWimRP3SlMGFNK90mGVJK2+QehoxDpp/CbWsh2zTDn3f6osFpbE1aIwio2CAgrZUy1iqlWaN7rZTTPm48plwgqJYzRSKmY9orX2UzHNDKz9iGMKphSAV0eoH3eQbTtv5DW/V5GVCxiopBUWzsqmyfdGetmpED5KRAQlAr4TS2kmltp22c+bfsfhAkqO+beZz9sUCWolrFGI6RkxiteX0X5kN1BqKTn0bzXHHQU4uWb8Zta8FvcmOm2DrAB2fbZCGspbN6An2+uXf+5Nz8wqiS98LPOCTYV5+kS2I7zfya63rvi/Y322aSbaHrth2rfi/degUilKdz9EzdMKk/20DdDKodA1vf4H140ZceK8FpHEjYbVuIAaDOiXap9b0xYgtDpCK2g2PXeK6eYgj2Iqc2cLFgQSlEtOH+q/MzZSKHMyT+6pmZiO+/Wh+XVpx5pKSsCC54JMTpEVhUKn6gIzfvuh7SKSJf0qZes9K4+9eXWy2ahNICo+kSpLF4oEKKMRIEH7fMOIrTF6umX3JC55k1HWwDhC0wloFDZRH7mbATY/mefEl4mS7U8iGcCjA6QFYkiRaSgae99kVYS6Yo+9ZLrPYCrTj7SjacEWEm5bzsynSE/czbK87b2PvXE9FQuRxQE4Cv0oAHbj9fUTKq5bcT1jwUhlG1967+P+VKV0/fHa9u7FrJTeexWwCDL/eje59GDW1HN08kcdBLVJ37nXtNm5LDZwxeP0n0BlFffSPjMyLJcuVeehz3sjJHtHrqOYIPjtoTysMr7Vsd5P/7UeK91CuPDFMGaBAgEUVgm2lYeOmDP+eWddR+8t//mAXHlyUcYL6oKXc0g/TJCyNijXKC1sef8ckdhhbf/5n5x5RsPN9LzhacUpKpEnnB9AF0NzTnX3TmMKBhsGFHqrlUys0p5F595ze8+BXDlKUcaP6wKXU0jfd/Vp8SCFOho5NzuWiwIRXVgkCrO7UIKYc765R8UwPITF1YiJdNWKoIdlbLtOSvqX38SLN6IiuINEVZpeo1LdmiDIpXHboOBTbRecKXoXrb4DYOrLv5t2+JvApA/5n0U7vh3xE5VtetaCYHK46tGHRsijCPaPfbboZXbltP+aUpymSRMEaw9jPNuf2TCN+t5tzwoAZYvOvg1CHEz1q5ZsmrNqxPb//ah2hzLFx18FoKPLbl9zbH12r7txvsamtTPu/mBobn3RfAAsGnJ7WsWJrU/9+YHG4635PZHR4l5Y2HI2XMI0s/olpM/U/fejIbrl8Iy3qyFVrXMFFG3O15d9wes59n2C66QAF1LV97a96uP2fJDK4U3bX48gcQIhShsGzX3zrBBCaS0Uc/6htdtgyIoz3a+66opYjWJmMrpPoUXFd3LFl8KDPcmXdW1dOWFCW3PB7407NBm4NGd+m/uWrrymDp9n9zp0LeAT45jiZuB04C/jNWu3rxT2LOYIlhTmMIUXjKYYl+nMIUpvGQwRbCmMIUpvGQwRbCmMIUpvGTw/wFYMxBwuVEjVQAAAABJRU5ErkJggg==> ",
+							INP_Passive = true,
+							IC_NoLabel = true,
+							IC_NoReset = true,
+						},
+						HiddenControls = {
+							INP_Integer = false,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 12,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Hidden Controls",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CurveShape = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Curve Shape"
+						},
+						Source = {
+							ICS_ControlPage = "Controls",
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Source",
+						},
+						Mirror = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Mirror"
+						},
+						Invert = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Invert"
+						},
+						Scaling = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Scaling"
+						},
+						Scale = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 2,
+							INP_Default = 1,
+							INP_MinScale = -2,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							ICD_Center = 1,
+							LINKS_Name = "Scale"
+						},
+						Offset = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Offset"
+						},
+						ClipLow = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Clip Low"
+						},
+						ClipHigh = {
+							INP_MaxAllowed = 1,
+							INP_Integer = true,
+							INPID_InputControl = "CheckboxControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							CBC_TriState = false,
+							ICD_Width = 0.5,
+							LINKS_Name = "Clip High"
+						},
+						Timing = {
+							INP_MaxAllowed = 1,
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = 0,
+							LINKID_DataType = "Number",
+							INP_Passive = true,
+							INP_External = false,
+							LINKS_Name = "Timing"
+						},
+						TimeScale = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 1,
+							INP_Default = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Time Scale"
+						},
+						TimeOffset = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = -1,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Time Offset"
+						}
+					}
+				},
+				]].. uniqueName .. [[_OUTCURVESLookup = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 255, Green = 255, Blue = 255 },
+				},
+				]].. uniqueName .. [[_CONTROLS = PublishNumber {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						CommentsNest = Input { Value = 0, },
+						FrameRenderScriptNest = Input { Value = 0, },
+						Value = Input { Expression = "StartNumber + (MasterAnim*(RestNumber-StartNumber))", },
+						InCurves = Input {
+							SourceOp = "]].. uniqueName .. [[_INCURVES",
+							Source = "Value",
+						},
+						OutCurves = Input {
+							SourceOp = "]].. uniqueName .. [[_OUTCURVES",
+							Source = "Value",
+						},
+						MasterAnim = Input {
+							Value = 1,
+							Expression = "InCurves+OutCurves",
+						},
+						Start_EndSeperatedHider = Input { Value = 1, },
+						SeperaterButtonHider = Input { Value = 1, },
+						FramesHider = Input { Value = 1, },
+						CalcsEndHider1 = Input { Value = 1, },
+						CalcsEndHider2 = Input { Value = 1, },
+						CalcStartButtHider = Input { Value = 1, },
+					},
+					UserControls = ordered() {
+						Value = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Common",
+							LINKS_Name = "Value"
+						},
+						InCurves = {
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Common",
+							INPID_InputControl = "ScrewControl",
+							LINKS_Name = "InCurves",
+						},
+						OutCurves = {
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Common",
+							INPID_InputControl = "ScrewControl",
+							LINKS_Name = "OutCurves",
+						},
+						MasterAnim = {
+							INP_Integer = false,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Common",
+							INPID_InputControl = "ScrewControl",
+							LINKS_Name = "MasterAnim",
+						},
+						AnimUtilityLogo = {
+							INP_Integer = false,
+							INPID_InputControl = "LabelControl",
+							IC_ControlPage = -1,
+							LBLC_MultiLine = true,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "<center><img src='data:image/png;base64,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> ",
+							INP_Passive = true,
+							IC_NoLabel = true,
+							IC_NoReset = true,
+						},
+						In = {
+							ICD_Width = 0.5,
+							INP_Integer = true,
+							LINKS_Name = "In",
+							ICS_ControlPage = "Controls",
+							INPID_InputControl = "CheckboxControl",
+							LINKID_DataType = "Number",
+							CBC_TriState = false,
+							INP_Default = 1,
+						},
+						Out = {
+							ICD_Width = 0.5,
+							INP_Integer = true,
+							LINKS_Name = "Out",
+							ICS_ControlPage = "Controls",
+							INPID_InputControl = "CheckboxControl",
+							LINKID_DataType = "Number",
+							CBC_TriState = false,
+							INP_Default = 1,
+						},
+						SeperaterButtonHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Seperator Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						SeperateStart_End = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool:SetInput('StartSeperatedHider', 1)\ntool:SetInput('Start_EndSeperatedHider', 0)\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('StartNumberSeperated', startEndNum)\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumberSeperated + (MasterAnim*(RestNumber-StartNumberSeperated)))')",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Seperate Start & End"
+						},
+						UndoSeperaterButtonHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Undo Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						UndoSeperation = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool:SetInput('StartSeperatedHider', 0)\ntool:SetInput('Start_EndSeperatedHider', 1)\ntool:SetInput('UndoSeperaterButtonHider', 0)\nlocal startNum = tool:GetInput('StartNumberSeperated')\ntool:SetInput('StartNumber', startNum)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Undo Seperation"
+						},
+						Start_EndSeperatedHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Start & End Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						StartNumber = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Start & End Number"
+						},
+						StartSeperatedHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Start Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						StartNumberSeperated = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Start Number"
+						},
+						RestNumber = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Rest Number"
+						},
+						EndSeperatedHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "End Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						EndNumber = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 5,
+							INP_Default = 0,
+							INP_MinScale = -5,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "End Number"
+						},
+						Sep1 = {
+							INP_External = false,
+							INPID_InputControl = "SeparatorControl",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "",
+						},
+						AnimationControlsLabel = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Animation Controls"
+						},
+						FramesHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 10,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Frames Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						ConverttoSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Convert to Seconds"
+						},
+						InAnimLength = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 24,
+							INP_MinScale = 1,
+							INP_MinAllowed = 1,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Length"
+						},
+						OutAnimLength = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 24,
+							INP_MinScale = 1,
+							INP_MinAllowed = 1,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim Length"
+						},
+						CalculatesfromCompStartLabel = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp Start"
+						},
+						InAnimStart = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 0,
+							INP_MinScale = -50,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Start"
+						},
+						CalcsEndHider1 = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calcs End Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatesfromCompEndLabel = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp End"
+						},
+						CalcsStartHider1 = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calcs Start Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatesfromCompStartLabel3 = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp Start"
+						},
+						OutAnimEnd = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 0,
+							INP_MinScale = -50,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim End"
+						},
+						SecondsHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 10,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Seconds Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						ConverttoFrames = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression()\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression()\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression()\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression()\ntool:SetInput('FramesHider', 1)\ntool:SetInput('SecondsHider', 0)",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Convert to Frames"
+						},
+						InAnimLengthSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 25,
+							INP_Default = 1,
+							INP_MinScale = 0.00999999977648258,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Length"
+						},
+						OutAnimLengthSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 25,
+							INP_Default = 1,
+							INP_MinScale = 0.00999999977648258,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim Length"
+						},
+						CalculatesfromCompStartLabel2 = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp Start"
+						},
+						InAnimStartSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 25,
+							INP_Default = 0,
+							INP_MinScale = -25,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Start"
+						},
+						CalcsEndHider2 = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calcs End Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatesfromCompEndLabel2 = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp End"
+						},
+						CalcsStartHider2 = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calcs Start Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatesfromCompStartLabel4 = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp Start"
+						},
+						OutAnimEndSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 25,
+							INP_Default = 0,
+							INP_MinScale = -25,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim End"
+						},
+						CalcStartButtHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calc Start Button Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatefromStart = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool:SetInput('CalcsEndHider2', 0)\ntool:SetInput('CalcsStartHider2', 1)\ntool:SetInput('CalcsEndHider1', 0)\ntool:SetInput('CalcsStartHider1', 1)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculate from Start"
+						},
+						CalcEndButtHider = {
+							INP_Integer = true,
+							LBLC_DropDownButton = true,
+							INPID_InputControl = "LabelControl",
+							LBLC_NumInputs = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							LINKS_Name = "Calc End Button Hider",
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							IC_Visible = false,
+						},
+						CalculatefromEnd = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool:SetInput('CalcsEndHider2', 1)\ntool:SetInput('CalcsStartHider2', 0)\ntool:SetInput('CalcsEndHider1', 1)\ntool:SetInput('CalcsStartHider1', 0)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculate from End"
+						}
 					}
 				}
 			},
-			Inputs = {
-				CONNECT = Input {
-					SourceOp = "]] .. uniqueName .. [[_USER",
-					Source = "Value",
-				}
-			},
-			UserControls = ordered() {
-				HiddenControls = {
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 3,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "Hidden Controls",
-					INP_Passive = true,
-					ICS_ControlPage = "Calc",
-					IC_Visible = false,
-				},
-				FirstOperand = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "First Operand"
-				},
-				Operator = {
-					{ CCS_AddString = "Add" },
-					{ CCS_AddString = "Subtract (First - Second)" },
-					{ CCS_AddString = "Multiply" },
-					{ CCS_AddString = "Divide   (First / Second)" },
-					{ CCS_AddString = "Divide   (Second / First)" },
-					{ CCS_AddString = "Subtract (Second - First)" },
-					{ CCS_AddString = "Minimum" },
-					{ CCS_AddString = "Maximum" },
-					{ CCS_AddString = "Average" },
-					{ CCS_AddString = "First Only" },
-					{ CCS_AddString = "Second Only" },
-					{ CCS_AddString = "Add Random" },
-					{ CCS_AddString = "Multiply Random" },
-					{ CCS_AddString = "Modulo (First % Second)" },
-					{ CCS_AddString = "Modulo (Second % First)" },
-					{ CCS_AddString = "Difference" },
-					{ CCS_AddString = "Power (First ^ Second)" },
-					{ CCS_AddString = "Power (Second ^ First)" },
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ComboControl",
-					CC_LabelPosition = "Horizontal",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "Operator"
-				},
-				SecondOperand = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "Second Operand"
-				},
-				CONNECT = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CONNECT",
-				}
-			}
-		},]]
-        .. uniqueName .. [[_ANIMINCURVES = LUTLookup {
-			NameSet = true,
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				},
-			},
-			Inputs = {
-				Curve = Input { Value = FuID { "Custom" }, },
-				EaseIn = Input { Value = FuID { "Quint" }, },
-				EaseOut = Input { Value = FuID { "Sine" }, },
-				Lookup = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMINCURVESLookup",
-					Source = "Value",
-				},
-				Source = Input { Value = FuID { "Duration" }, },
-				Scale = Input { Expression = "iif(]] .. uniqueName .. [[_USER.IN == 1, 1, 0)", },
-				Offset = Input { Expression = "iif(]] .. uniqueName .. [[_USER.IN == 1, 0, 1)", },
-				TimeScale = Input {
-					Value = 12.4166666666667,
-					Expression = "(comp.RenderEnd-comp.RenderStart)/]] .. uniqueName .. [[_USER.ANIMLENGTHIN",
-				},
-				TimeOffset = Input { Expression = "]] .. uniqueName .. [[_USER.ANIMOFFSETIN/(comp.RenderEnd-comp.RenderStart)", }
-			},
-			UserControls = ordered() {
-				HiddenControls = {
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 12,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					IC_Visible = false,
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Hidden Controls",
-				},
-				CurveShape = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 8,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_MinAllowed = 0,
-					INP_MinScale = 0,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_Passive = true,
-					LBLC_NestLevel = 0,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Curve Shape"
-				},
-				Source = {
-					{ CCS_AddString = "Duration" },
-					{ CCS_AddString = "Transition" },
-					{ CCS_AddString = "Custom" },
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CC_LabelPosition = "Horizontal",
-					INPID_InputControl = "ComboControl",
-					LINKS_Name = "Source",
-				},
-				Mirror = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					ICD_Width = 0.5,
-					LINKS_Name = "Mirror"
-				},
-				Invert = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					ICD_Width = 0.5,
-					LINKS_Name = "Invert"
-				},
-				Scaling = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 4,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_MinAllowed = 0,
-					INP_MinScale = 0,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_Passive = true,
-					LBLC_NestLevel = 0,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Scaling"
-				},
-				Scale = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 2,
-					INP_Default = 1,
-					INP_MinScale = -2,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Center = 1,
-					LINKS_Name = "Scale"
-				},
-				Offset = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 5,
-					INP_Default = 0,
-					INP_MinScale = -5,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Offset"
-				},
-				ClipLow = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					ICD_Width = 0.5,
-					LINKS_Name = "Clip Low"
-				},
-				ClipHigh = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					ICD_Width = 0.5,
-					LINKS_Name = "Clip High"
-				},
-				Timing = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 2,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_MinAllowed = 0,
-					INP_MinScale = 0,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_Passive = true,
-					LBLC_NestLevel = 0,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Timing"
-				},
-				TimeScale = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Time Scale"
-				},
-				TimeOffset = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_Default = 0,
-					INP_MinScale = -1,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Time Offset"
-				}
-			}
-		},]]
-        .. uniqueName .. [[_ANIMINCURVESLookup = LUTBezier {
-			KeyColorSplines = {
-				[0] = {
-					[0] = { 0, RH = { 0.333333333333333, 0 }, Flags = { Linear = true } },
-					[1] = { 1, LH = { 0.666666666666667, 1 } }
-				}
-			},
-			SplineColor = { Red = 255, Green = 255, Blue = 255 },
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				}
-			},
-		},]]
-        .. uniqueName .. [[_ANIMOUTCURVES = LUTLookup {
-			NameSet = true,
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				},
-			},
-			Inputs = {
-				Curve = Input { Value = FuID { "Custom" }, },
-				EaseIn = Input { Value = FuID { "Sine" }, },
-				EaseOut = Input { Value = FuID { "Quint" }, },
-				Lookup = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVESLookup",
-					Source = "Value",
-				},
-				Source = Input { Value = FuID { "Duration" }, },
-				Scale = Input {
-					Value = -1,
-					Expression = "iif(]] .. uniqueName .. [[_USER.OUT == 1, -1, 0)",
-				},
-				TimeScale = Input {
-					Value = 12.4166666666667,
-					Expression = "(comp.RenderEnd-comp.RenderStart)/]] .. uniqueName .. [[_USER.ANIMLENGTHOUT",
-				},
-				TimeOffset = Input {
-					Value = 0.919463087248322,
-					Expression = "iif(]] .. uniqueName .. [[_USER.OFFSETSWITCH == 1, (]] .. uniqueName .. [[_USER.ANIMOFFSETOUT/(comp.RenderEnd-comp.RenderStart)),1-((]] .. uniqueName .. [[_USER.ANIMLENGTHOUT+]] .. uniqueName .. [[_USER.ANIMOFFSETOUT)/(comp.RenderEnd-comp.RenderStart)))",
-				}
-			},
-			UserControls = ordered() {
-				HiddenControls = {
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 12,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "Hidden Controls",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					IC_Visible = false,
-				},
-				CurveShape = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 8,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_External = false,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LBLC_NestLevel = 0,
-					INP_Passive = true,
-					LINKS_Name = "Curve Shape"
-				},
-				Source = {
-					{ CCS_AddString = "Duration" },
-					{ CCS_AddString = "Transition" },
-					{ CCS_AddString = "Custom" },
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CC_LabelPosition = "Horizontal",
-					INPID_InputControl = "ComboControl",
-					LINKS_Name = "Source",
-				},
-				Mirror = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					CBC_TriState = false,
-					LINKS_Name = "Mirror"
-				},
-				Invert = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					CBC_TriState = false,
-					LINKS_Name = "Invert"
-				},
-				Scaling = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 4,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_External = false,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LBLC_NestLevel = 0,
-					INP_Passive = true,
-					LINKS_Name = "Scaling"
-				},
-				Scale = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 2,
-					INP_Default = 1,
-					INP_MinScale = -2,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Center = 1,
-					LINKS_Name = "Scale"
-				},
-				Offset = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 5,
-					INP_Default = 0,
-					INP_MinScale = -5,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Offset"
-				},
-				ClipLow = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					CBC_TriState = false,
-					LINKS_Name = "Clip Low"
-				},
-				ClipHigh = {
-					INP_MaxAllowed = 1,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					CBC_TriState = false,
-					LINKS_Name = "Clip High"
-				},
-				Timing = {
-					INP_MaxAllowed = 1,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 2,
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_External = false,
-					INP_MinScale = 0,
-					INP_MinAllowed = 0,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LBLC_NestLevel = 0,
-					INP_Passive = true,
-					LINKS_Name = "Timing"
-				},
-				TimeScale = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_Default = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Time Scale"
-				},
-				TimeOffset = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_Default = 0,
-					INP_MinScale = -1,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Time Offset"
-				}
-			}
-		},]]
-        .. uniqueName .. [[_ANIMOUTCURVESLookup = LUTBezier {
-			KeyColorSplines = {
-				[0] = {
-					[0] = { 0, RH = { 0.333333333333333, 0 }, Flags = { Linear = true } },
-					[1] = { 1, LH = { 0.666666666666667, 1 } }
-				}
-			},
-			SplineColor = { Red = 255, Green = 255, Blue = 255 },
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				}
-			},
-		},]]
-        .. uniqueName .. [[_USER = PublishNumber {
-			CtrlWZoom = false,
-			NameSet = true,
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				},
-			},
-			Inputs = {
-				AnimIn = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMINCURVES",
-					Source = "Value",
-				},
-				AnimOut = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVES",
-					Source = "Value",
-				},
-				MasterAnim = Input {
-					SourceOp = "]] .. uniqueName .. [[_CALCMAIN",
-					Source = "Result",
-				},
-				From0 = Input { Expression = "MasterAnim*INPUTAMOUNT", },
-				FromINPUT = Input { Expression = "-(MasterAnim-1)*INPUTAMOUNT", },
-				FromCUSTOM = Input { Expression = "CUSTOMINPUTSTART + (MasterAnim*(CUSTOMINPUTEND-CUSTOMINPUTSTART))", },
-				Value = Input { Expression = "From0", },
-				IN = Input { Value = 1, },
-				OUT = Input { Value = 1, },
-				INPUTOPTIONS = Input { Value = 1, },
-				ANIMLENGTHIN = Input { Value = 24, },
-				ANIMLENGTHOUT = Input { Value = 24, },
-				CURRENTFRAME = Input { Expression = "(comp.RenderStart-comp.RenderStart)+time", },
-				OFFSETINSTART = Input {
-					Value = -24,
-					Expression = "(comp.RenderStart-comp.RenderStart)+time-ANIMLENGTHIN",
-				},
-				OFFSETOUTSTART = Input {
-					Value = 274,
-					Expression = "comp.RenderEnd-time-ANIMLENGTHOUT",
-				},
-				OTHERTHINGS = Input { Value = 1, },
-				DETAILS = Input { Value = "Based on MiniAnimator by MrAlexTech\nBased Anim Logic From Patrick Stirling's Subtitles Pro\n------------------\nAnim Utility by AsherRoland", },
-			},
-			UserControls = ordered() {
-				HiddenControls = {
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 7,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_Passive = true,
-					IC_Visible = false,
-					LINKS_Name = "Hidden Controls",
-				},
-				AnimIn = {
-					INPID_InputControl = "SliderControl",
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "AnimIn",
-				},
-				AnimOut = {
-					INPID_InputControl = "SliderControl",
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "AnimOut",
-				},
-				MasterAnim = {
-					INPID_InputControl = "SliderControl",
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "MasterAnim",
-				},
-				From0 = {
-					INPID_InputControl = "ScrewControl",
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "From 0",
-				},
-				FromINPUT = {
-					INPID_InputControl = "ScrewControl",
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "From INPUT",
-				},
-				FromCUSTOM = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					INPID_InputControl = "ScrewControl",
-					INP_MinScale = 0,
-					INP_MaxScale = 1,
-					LINKS_Name = "From CUSTOM",
-				},
-				Value = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					INPID_InputControl = "ScrewControl",
-					INP_MinScale = 0,
-					INP_MaxScale = 1,
-					LINKS_Name = "Value",
-				},
-				TUTORIAL = {
-					ICD_Width = 1,
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "ButtonControl",
-					LINKS_Name = "TUTORIAL",
-				},
-				Sep5 = {
-					INP_External = false,
-					INPID_InputControl = "SeparatorControl",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "",
-				},
-				CUSTOMCONTROLS = {
-					ICS_ControlPage = "Controls",
-					INP_Integer = false,
-					LBLC_DropDownButton = false,
-					LINKID_DataType = "Number",
-					INP_External = false,
-					INP_Passive = true,
-					INPID_InputControl = "LabelControl",
-					LINKS_Name = "<p style=\"color:yellow;\">CUSTOM CONTROLS</p>",
-				},
-				IN = {
-					ICD_Width = 0.5,
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					INPID_InputControl = "CheckboxControl",
-					LINKS_Name = "IN",
-				},
-				OUT = {
-					ICD_Width = 0.5,
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					INPID_InputControl = "CheckboxControl",
-					LINKS_Name = "OUT",
-				},
-				INPUTOPTIONS = {
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 10,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "0 TO INPUT OPTIONS",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					IC_Visible = false,
-				},
-				Sep2 = {
-					INP_External = false,
-					INPID_InputControl = "SeparatorControl",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "",
-				},
-				INPUTAMOUNT = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "INPUT AMOUNT",
-				},
-				INVERT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.Value:SetExpression(\"FromINPUT\")\ntool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTOUT,-(MasterAnim-1)*INVERTINPUTIN))\")\ntool:SetInput('INVERTEDOPTIONS', 1)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "INVERT 0&INPUT"
-				},
-				INVERTEDOPTIONS = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 6,
-					INP_MaxScale = 1,
-					Expression = "iif(SPLITINVERTINPUT==1,1,0)",
-					LINKS_Name = "SPLIT INVERTED OPTIONS",
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INP_Passive = true,
-					INP_External = false,
-					IC_Visible = false
-				},
-				REVERT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.Value:SetExpression(\"From0\")\ntool.FromINPUT:SetExpression(\"-(MasterAnim-1)*INPUTAMOUNT\")\ntool:SetInput('INVERTEDOPTIONS', 0)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "REVERT"
-				},
-				SPLITINVERTINPUT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					CBC_TriState = false,
-					LINKS_Name = "SPLIT INVERT INPUT"
-				},
-				["INVERT_/"] = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTIN,-(MasterAnim-1)*INVERTINPUTOUT))\")",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.75,
-					LINKS_Name = "INVERT IN/OUT"
-				},
-				REVERTINPUTS = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromINPUT:SetExpression(\"iif(SPLITINVERTINPUT==0, -(MasterAnim-1)*INPUTAMOUNT, iif(time >ANIMLENGTHIN+ANIMOFFSETIN, -(MasterAnim-1)*INVERTINPUTOUT,-(MasterAnim-1)*INVERTINPUTIN))\")",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.25,
-					LINKS_Name = "REVERT"
-				},
-				INVERTINPUTIN = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "INVERT INPUT IN",
-				},
-				INVERTINPUTOUT = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "INVERT INPUT OUT",
-				},
-				Sep1 = {
-					INP_External = false,
-					INPID_InputControl = "SeparatorControl",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "",
-				},
-				ENABLECUSTOM = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.Value:SetExpression(\"FromCUSTOM\")\ntool:SetInput('FULLYCUSTOMOPTIONS', 1)\ntool:SetInput('INPUTOPTIONS', 0)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "ENABLE CUSTOM"
-				},
-				FULLYCUSTOMOPTIONS = {
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 12,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "FULLY CUSTOM OPTIONS",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					IC_Visible = false,
-				},
-				RESETTODEFUALT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.Value:SetExpression(\"From0\")\ntool:SetInput('FULLYCUSTOMOPTIONS', 0)\ntool:SetInput('INPUTOPTIONS', 1)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "RESET"
-				},
-				CUSTOMINPUTSTART = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CUSTOM INPUT START",
-				},
-				CUSTOMINPUTEND = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CUSTOM INPUT END",
-				},
-				INVERTCUSTOMs = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT)), CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN))))\")\ntool:SetInput('SPLITCUSTOMOPTIONS', 1)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "INVERT START&END"
-				},
-				SPLITCUSTOMOPTIONS = {
-					INP_Integer = true,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 7,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "SPLIT CUSTOM OPTIONS",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					IC_Visible = false,
-				},
-				REVERTCUSTOMs = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"CUSTOMINPUTSTART + (MasterAnim*(CUSTOMINPUTEND-CUSTOMINPUTSTART))\")\ntool:SetInput('SPLITCUSTOMOPTIONS', 0)",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 1,
-					LINKS_Name = "REVERT"
-				},
-				SPLITCUSTOMINPUTS = {
-					CBC_TriState = false,
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "CheckboxControl",
-					LINKS_Name = "SPLIT CUSTOM INPUTS",
-				},
-				INVERTIN_OUT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN)), CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT))))\")",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.75,
-					LINKS_Name = "INVERT IN/OUT"
-				},
-				REVERTIN_OUT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.FromCUSTOM:SetExpression(\"iif(SPLITCUSTOMINPUTS == 0, CUSTOMINPUTEND + (MasterAnim*(CUSTOMINPUTSTART-CUSTOMINPUTEND)), iif(time>ANIMLENGTHIN+ANIMOFFSETIN, CUSTOMINPUTENDOUT + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTENDOUT)), CUSTOMINPUTSTARTIN + (MasterAnim*(CUSTOMINPUTMID-CUSTOMINPUTSTARTIN))))\")",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.25,
-					LINKS_Name = "REVERT"
-				},
-				CUSTOMINPUTSTARTIN = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CUSTOM INPUT START IN",
-				},
-				CUSTOMINPUTMID = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CUSTOM INPUT MID",
-				},
-				CUSTOMINPUTENDOUT = {
-					INP_Integer = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CUSTOM INPUT END OUT",
-				},
-				Sep3 = {
-					INP_External = false,
-					INPID_InputControl = "SeparatorControl",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "",
-				},
-				ANIMATIONOPTIONS = {
-					ICS_ControlPage = "Controls",
-					INP_Integer = false,
-					LBLC_DropDownButton = false,
-					LINKID_DataType = "Number",
-					INP_External = false,
-					INP_Passive = true,
-					INPID_InputControl = "LabelControl",
-					LINKS_Name = "<p style=\"color:yellow;\">TIMING OPTIONS</p>",
-				},
-				ANIMLENGTHIN = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "SliderControl",
-					INP_MaxScale = 100,
-					INP_MinScale = 1,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "LENGTH IN"
-				},
-				ANIMLENGTHOUT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "SliderControl",
-					INP_MaxScale = 100,
-					INP_MinScale = 1,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "LENGTH OUT"
-				},
-				ANIMOFFSETIN = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "SliderControl",
-					INP_MaxScale = 100,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "START FRAME IN"
-				},
-				ANIMOFFSETOUT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "SliderControl",
-					INP_MaxScale = 100,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "END FRAME OUT"
-				},
-				CHANGEOFFSETOUTMETHOD = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.OFFSETOUTSTART:SetExpression(\"(comp.RenderStart-comp.RenderStart)+time-ANIMLENGTHOUT\")\ntool:SetInput('OFFSETSWITCH', 1)\ntool.ANIMOFFSETOUT:SetAttrs({INPS_Name = \"START FRAME OUT\"})\ntool.OFFSETOUTSTART:SetAttrs({INPS_Name = \"OUT START FRAME ON END\"})",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					LINKS_Name = "SWAP FRAMEOUT MATH"
-				},
-				REVERTOFFSET = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "tool.OFFSETOUTSTART:SetExpression(\"comp.RenderEnd-time-ANIMLENGTHOUT\")\ntool:SetInput('OFFSETSWITCH', 0)\ntool.ANIMOFFSETOUT:SetAttrs({INPS_Name = \"END FRAME OUT\"})\ntool.OFFSETOUTSTART:SetAttrs({INPS_Name = \"OUT END FRAME ON START\"})",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.25,
-					LINKS_Name = "REVERT"
-				},
-				OFFSETSWITCH = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "CheckboxControl",
-					INP_MaxScale = 1,
-					CBC_TriState = false,
-					ICD_Width = 0.1,
-					INP_MinScale = 0,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INP_Passive = true,
-					INP_MinAllowed = -1000000,
-					LINKS_Name = ""
-				},
-				CURRENTFRAME = {
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "CURRENT FRAME",
-				},
-				OFFSETINSTART = {
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "IN START FRAME ON END",
-				},
-				OFFSETOUTSTART = {
-					INP_Integer = true,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					INPID_InputControl = "SliderControl",
-					LINKS_Name = "OUT END FRAME ON START",
-				},
-				OTHERTHINGS = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 8,
-					INP_MaxScale = 1,
-					LBLC_MultiLine = true,
-					INP_MinScale = 0,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_MinAllowed = -1000000,
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "<p style=\"font-size:15px; color:gold; font-style:extrabold; text-align:left;\">OTHER THINGS</p>"
-				},
-				MyLinks = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://linktr.ee/asherroland\\\"')\n					os.execute('start \\\"\\\" \\\"https://linktr.ee/asherroland\\\"')					",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "My Links"
-				},
-				MrAlexTech = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/c/mralextech\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/c/mralextech\\\"')					",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					LINKS_Name = "MrAlexTech"
-				},
-				PatrickSterling = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/@PatrickStirling\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/@PatrickStirling\\\"')					",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					ICD_Width = 0.5,
-					LINKS_Name = "Patrick Stirling"
-				},
-				DETAILS = {
-					TEC_ReadOnly = true,
-					INPID_InputControl = "TextEditControl",
-					TEC_Lines = 6,
-					INP_External = false,
-					LINKID_DataType = "Text",
-					LINKS_Name = "About",
-					INP_Passive = true,
-					ICS_ControlPage = "Controls",
-					TEC_Wrap = true,
-				},
-				SpecialThanks = {
-					INP_Integer = false,
-					LBLC_DropDownButton = false,
-					ICS_ControlPage = "Controls",
-					LBLC_MultiLine = true,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					INP_Passive = true,
-					INPID_InputControl = "LabelControl",
-					LINKS_Name = "<p style=\"font-size:13px; color:gold; font-style:extrabold;\">Special Thanks</p>",
-				},
-				X_Session = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://www.youtube.com/@XSession\\\"')\n					os.execute('start \\\"\\\" \\\"https://www.youtube.com/@XSession\\\"')					",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "X-Session"
-				},
-				DavinciResolveDiscord = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = true,
-					INPID_InputControl = "ButtonControl",
-					BTNCS_Execute = "					os.execute('open \\\"\\\" \\\"https://discord.gg/davinci-resolve-community-714620142096482314\\\"')\n					os.execute('start \\\"\\\" \\\"https://discord.gg/davinci-resolve-community-714620142096482314\\\"')					",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Controls",
-					LINKS_Name = "Davinci Resolve Discord"
-				}
-			}
-		},]]
-        .. uniqueName .. [[_CALCMAIN = Calculation {
-			NameSet = true,
-			CustomData = {
-				Path = {
-					Map = {
-						["Setting:"] = "Macros:\\Asher Roland\\"
-					}
-				}
-			},
-			Inputs = {
-				FirstOperand = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMINCURVES",
-					Source = "Value",
-				},
-				SecondOperand = Input {
-					SourceOp = "]] .. uniqueName .. [[_ANIMOUTCURVES",
-					Source = "Value",
-				}
-			},
-			UserControls = ordered() {
-				HiddenControls = {
-					INP_Integer = false,
-					LBLC_DropDownButton = true,
-					INPID_InputControl = "LabelControl",
-					LBLC_NumInputs = 4,
-					INP_External = false,
-					LINKID_DataType = "Number",
-					LINKS_Name = "Hidden Controls",
-					INP_Passive = true,
-					ICS_ControlPage = "Calc",
-					IC_Visible = false,
-				},
-				CONNECT = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "SliderControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "CONNECT"
-				},
-				FirstOperand = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "First Operand"
-				},
-				Operator = {
-					{ CCS_AddString = "Add" },
-					{ CCS_AddString = "Subtract (First - Second)" },
-					{ CCS_AddString = "Multiply" },
-					{ CCS_AddString = "Divide   (First / Second)" },
-					{ CCS_AddString = "Divide   (Second / First)" },
-					{ CCS_AddString = "Subtract (Second - First)" },
-					{ CCS_AddString = "Minimum" },
-					{ CCS_AddString = "Maximum" },
-					{ CCS_AddString = "Average" },
-					{ CCS_AddString = "First Only" },
-					{ CCS_AddString = "Second Only" },
-					{ CCS_AddString = "Add Random" },
-					{ CCS_AddString = "Multiply Random" },
-					{ CCS_AddString = "Modulo (First % Second)" },
-					{ CCS_AddString = "Modulo (Second % First)" },
-					{ CCS_AddString = "Difference" },
-					{ CCS_AddString = "Power (First ^ Second)" },
-					{ CCS_AddString = "Power (Second ^ First)" },
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ComboControl",
-					CC_LabelPosition = "Horizontal",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "Operator"
-				},
-				SecondOperand = {
-					INP_MaxAllowed = 1000000,
-					INP_Integer = false,
-					INPID_InputControl = "ScrewControl",
-					INP_MaxScale = 1,
-					INP_MinScale = 0,
-					INP_MinAllowed = -1000000,
-					LINKID_DataType = "Number",
-					ICS_ControlPage = "Calc",
-					LINKS_Name = "Second Operand"
-				}
-			}
+			ActiveTool = "]].. uniqueName .. [[_CONNECT_TO_ME"
 		}
-            },
-            ActiveTool = "]] .. uniqueName .. [[_MASTERANIM"
-        }
-    ]]
+		]]
     return s
 end
 
@@ -2645,6 +2155,7 @@ local function CreateToolWindow()
                 },
 		ui:VGroup{
             ID = "root",
+			ui:Button{ID = 'AnimUtilityIconButt', Weight = 0, IconSize = {width - 100, 45}, Icon = ui:Icon{File = icons .. "Logo.png"}, Flat = true, MaximumSize = { width, 45 }, MinimumSize = { width, 45 },},
             ui:HGroup{
 				Weight = 0.02,
 				MinimumSize = {width, 10},
@@ -2655,19 +2166,19 @@ local function CreateToolWindow()
 				Weight = 0.5,
 				MinimumSize = {width, 100},
 				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01, MaximumSize = { width, 24 }, MinimumSize = { width, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
-                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25, MaximumSize = { width, 250 }, MinimumSize = { width, 250 }, StyleSheet = [[background-color:#1f1f1f;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
-				ui:Label{Weight = 0, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = 'font-size = 5px'},
-				ui:Label{ID = 'UniqueNameLabel', Text = 'Unique Name for Anim Utility Modifiers', Weight = 0.01, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;font-weight: bold;color:rgb(255,255,255);]]},
+                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25, MaximumSize = { width, 200 }, MinimumSize = { width, 200 }, StyleSheet = [[background-color:#1f1f1f;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
+				ui:Label{Weight = 0, MaximumSize = { width, 8 }, MinimumSize = { width, 8 } },
+				ui:Label{ID = 'UniqueNameLabel', Text = 'Unique Name for Anim Utility Modifiers', Weight = 0.01, MaximumSize = { width, 18 }, MinimumSize = { width, 18 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;font-weight: bold;color:rgb(255,255,255);]]},
                 ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name', Weight = 0.03, MaximumSize = { width, 34 }, MinimumSize = { width, 34 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
                 ui:Button{ID = 'Paste', Text = 'Paste Anim Utility', Weight = 0.02, MaximumSize = { width, 34 }, MinimumSize = { width, 34 }, StyleSheet = [[QPushButton{border: 1px solid rgb(164,66,41);max-height: 28px;border-radius: 14px;background-color: rgb(164,66,41);color: rgb(220, 220, 220);min-height: 28px;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);}QPushButton:hover{border: 2px solid rgb(235,152,79);background-color: rgb(235,152,79);}]]},
-				ui:Label{Weight = 0,FrameStyle = 4, MaximumSize = { width, 14 }, MinimumSize = { width, 14 }, StyleSheet = 'font-size = 2px'},
+				ui:Label{Weight = 0, FrameStyle = 4, MaximumSize = { width, 2 }, MinimumSize = { width, 2 } },
             },
 			ui:HGroup{
 				Weight = 0.02,
-				MinimumSize = {width, 20},
-				ui:Button{ID = 'YT', Text = 'YouTube Tutorial', MaximumSize = { width-193, 24 }, MinimumSize = { width-193, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
-				ui:Label{Weight = 0.05,},
-				ui:Button{ID = 'KoFi', Text = 'More Fusion Goodies', MaximumSize = { width-193, 24 }, MinimumSize = { width-193, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]}
+				MinimumSize = {width, 25},
+				MaximumSize = { width, 25 },
+				ui:Button{ID = 'YT', MaximumSize = { width-340, 25 }, MinimumSize = { width-340, 25 }, IconSize = {width-300,25}, Icon = ui:Icon{File = icons .. 'YouTube.png'}, Flat = true, ToolTip = "YouTube Tutorial",StyleSheet = [[font-family: Amaranth;]]},
+				ui:Button{ID = 'KoFi', MaximumSize = { width-340, 25 }, MinimumSize = { width-340, 25 }, IconSize = {width-325,25}, Icon = ui:Icon{File = icons .. 'KoFi.png'}, Flat = true, ToolTip = "More Fusion Goodies",StyleSheet = [[font-family: Amaranth;]]}
 			}
         },
 	}
@@ -2676,7 +2187,7 @@ local function CreateToolWindow()
 mainWnditm = mainWnd:GetItems()
 
 function mainWnd.On.MainWindow.Close(ev)
-	fusion:SetData("AnimUtility_HVpos", mainWnditm.MainWindow.Geometry)
+	fusion:SetData("AnimUtility_HVpos", mainWnditm.MainWindow.Geometry) -- Sets Current Poistion to New Position for Next Open
 	disp:ExitLoop()
 end
 
@@ -2686,6 +2197,38 @@ end
 
 function mainWnd.On.KoFi.Clicked(ev)
 	bmd.openurl('https://www.ko-fi.com/asherroland')
+end
+
+function mainWnd.On.AnimUtilityIconButt.Clicked(ev)
+	bmd.openurl('https://www.fusionpixelstudio.com')
+end
+-- Prevents user from typing characters that will cause pasting errors
+function mainWnd.On.UniqueName.TextChanged(ev)
+	local txt = ev.Text
+	if string.find(txt, " ") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, " ", "_")
+	end
+	if string.find(txt, "/") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "/", "_")
+	end
+	if string.find(txt, "\\") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "\\", "_")
+	end
+	if string.find(txt, "-") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "-", "_")
+	end
+	if string.find(txt, "%(") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "%(", "_")
+	end
+	if string.find(txt, "%)") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "%)", "_")
+	end
+	if string.find(txt, "~") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "~", "_")
+	end
+	if string.find(txt, "%.") then
+		mainWnditm.UniqueName.Text = string.gsub(txt, "%.", "_")
+	end
 end
 
 function BuildSearchKey(t, key)
@@ -2750,8 +2293,7 @@ local function sortTable()
 	local key = g_FilterText:lower()
     for _, v in pairs(NodeControls) do
 		local hide = true
-		if #key == 0 or v._SearchKey:match(key) then
-			--print(v)
+		if #key == 0 or v._SearchKey:match(key) then -- Checks what is typed in Search bar with what is in the Table
 			hide = false
 		end
 		if hide ~= v.Hidden then
@@ -2771,11 +2313,11 @@ end
 local Control
 nodeName = node:GetAttrs().TOOLS_Name
 local controlType
-
+-- Collects what Controls was selected and Creates a template unique name
 function mainWnd.On.NodeControls.ItemClicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
-		showMessage(355,"No Selected Node","Please make sure you have a node selected while using this tool!")
+		showMessage(355,"No Selected Node","Please make sure you have a node selected while using this tool!") --You must have a node to select a control
 	else
 		Control = ev.item.Text[0]
 		controlType = ev.item.Text[2]
@@ -2791,7 +2333,7 @@ hdr2.Text[1] = 'Control Names'
 mainWnditm.NodeControls:SetHeaderItem(hdr2)
 mainWnditm.NodeControls.ColumnCount = 2
 mainWnditm.NodeControls.ColumnWidth[0] = 200
-
+-- Resets GUI and gets controls for currently selected node
 function mainWnd.On.Reload.Clicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
@@ -2807,7 +2349,7 @@ function mainWnd.On.Reload.Clicked(ev)
 		controlType = nil
 	end
 end
-
+-- Gathers the Modifiers for the selected control's type, pastes them and connects the chosen control to the modifier's connector
 function mainWnd.On.Paste.Clicked(ev)
 	fusion:SetData("AnimUtility_HVpos", mainWnditm.MainWindow.Geometry)
     local name = (tostring(mainWnditm.UniqueName.Text))
@@ -2821,8 +2363,8 @@ function mainWnd.On.Paste.Clicked(ev)
 				local nodestr = tostring(nodeName)
 				local controlStr = tostring(Control)
 				local nodeControl = nodestr .. '.' .. controlStr
-				local ModifierName = name .. '_MASTERANIM'
-				local Modifierstr = ModifierName .. '.CONNECT'
+				local ModifierName = name .. '_CONNECT_TO_ME'
+				local Modifierstr = ModifierName .. '.CONNECTION'
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
@@ -2849,8 +2391,8 @@ function mainWnd.On.Paste.Clicked(ev)
 				local nodestr = tostring(nodeName)
 				local controlStr = tostring(Control)
 				local nodeControl = nodestr .. '.' .. controlStr
-				local ModifierName = name .. '_MASTERANIM'
-				local Modifierstr = ModifierName .. '.CONNECT'
+				local ModifierName = name .. '_CONNECT_TO_ME'
+				local Modifierstr = ModifierName .. '.CONNECTION'
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
@@ -2869,6 +2411,7 @@ function mainWnd.On.install.Clicked(ev)
 	content:RemoveChild("install_group")
 	mainWnd:RecalcLayout()
 end
+-- If script is in the wrong place, show install Bar
 	if not SCRIPT_INSTALLED then
 		local content = mainWnd:GetItems().install_bar
 		content:AddChild(
@@ -2900,6 +2443,7 @@ end
 				}
 			})
 	end
+
     fillTree()
 	mainWnd:RecalcLayout()
     mainWnd:Show()
@@ -2907,7 +2451,7 @@ end
     mainWnd:Hide()
 	print("Bye!")
 end
-
+-- You MUST have a node selected to open the GUI
 if type(node) ~= "userdata" then
     showMessage(355,"No Selected Node","NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
 else

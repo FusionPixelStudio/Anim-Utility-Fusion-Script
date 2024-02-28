@@ -4,7 +4,7 @@ _VERSION = [[Version 1 - Feburary 2024]]
 
 ui = app.UIManager
 disp = bmd.UIDispatcher(ui)
-local originX, originY, width, height = 200, 200, 546, 308
+local originX, originY, width, height = 200, 200, 500, 280
 
 	-- Create the new UI Manager Window
 	local win = disp:AddWindow({
@@ -33,13 +33,13 @@ local originX, originY, width, height = 200, 200, 546, 308
 					ui:Button{
 						ID = 'FusionPixelButton',
 						Weight = 0,
-						IconSize = {68,68},
+						IconSize = {250,200},
 						Icon = ui:Icon{
-							File = icons .. 'FusionPixel.png'
+							File = icons .. 'Logo.png'
 						},
 						MinimumSize = {
-							68,
-							68,
+							150,
+							100,
 						},
 						Flat = true,
 					},
@@ -57,12 +57,12 @@ local originX, originY, width, height = 200, 200, 546, 308
 						Font = ui:Font{
 							PixelSize = 36,
 						},
-						StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]
+						StyleSheet = [[font-family: Amaranth;color:rgb(255,255,255);]]
 					},
 
 					ui:Label {
 						ID = "VersionLabel",
-						Weight = 1,
+						Weight = 2,
 
 						Text = _VERSION,
 						WordWrap = true,
@@ -73,7 +73,7 @@ local originX, originY, width, height = 200, 200, 546, 308
 						Font = ui:Font{
 							PixelSize = 12,
 						},
-						StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]
+						StyleSheet = [[font-family: Amaranth;color:rgb(255,255,255);]]
 					},
 
 				},
@@ -82,7 +82,7 @@ local originX, originY, width, height = 200, 200, 546, 308
 			ui:VGroup{
 				ui:Label {
 					ID = "AboutLabel",
-					Text = [[Anim Utility is a tool for the Fusion page of Davinci Resolve that allows animations without keyframes and that are easy to customize! Which means this animation engine is great for creating your own Macros and Edit Page Effects! The GUI lets you select what node control you want to connect the animation engine to and make a custom name to make use of them way easier!]],
+					Text = [[Anim Utility is a tool for the Fusion page of Davinci Resolve that allows animations without keyframes that are easy to customize! Which means this animation engine is great for creating your own Macros and Edit Page Effects! The GUI lets you select what node control you want to connect the animation engine to and make a custom name to make use of them way easier!]],
 					OpenExternalLinks = true,
 					WordWrap = true,
 					Alignment = {
@@ -92,7 +92,7 @@ local originX, originY, width, height = 200, 200, 546, 308
 					Font = ui:Font{
 						PixelSize = 14,
 					},
-					StyleSheet = [[font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]
+					StyleSheet = [[font-family: Amaranth;color:rgb(255,255,255);]]
 				},
 
 			},
