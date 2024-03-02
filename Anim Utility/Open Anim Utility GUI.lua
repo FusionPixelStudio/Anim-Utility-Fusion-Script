@@ -40,7 +40,6 @@ local icons = comp:MapPath('Scripts:/Comp/FusionPixelStudio/Anim Utility/files/'
 local function script_path()
 	local str = debug.getinfo(2, "S").source:sub(2)
 	local strdir = str:match("(.*[/\\])")
-	--print(strdir)
     return strdir
 end
 
@@ -98,24 +97,17 @@ local function InstallScript()
 			bmd.createdir(folderRoot)
 			target_path = folderMain
 			print('Neither Folder Present')
-			--print(source_path)
-			--print(target_path)
 		else
-			--bmd.createdir(folderMain)
 			target_path = folderMain
 			print('No Anim Utility Folder')
-			--print(source_path)
-			--print(target_path)
 		end
 	else
 		target_path = folderMain
-		--print(source_path)
-		--print(target_path)
 	end
 	local success = os.rename(source_path, target_path)
 	
     		if not success then
-       		showMessage(310,"Failed to Install","Failed to install\nPlease manually move to the /Blackmagic Design/Davinci Resolve/Fusion/Scripts/Comp/FusionPixelStudio folder. Delete your Anim Utility Folder.")
+       		showMessage(395,"Failed to Install","Failed to install\nPlease manually move to the /Blackmagic Design/Davinci Resolve/Fusion/Scripts/Comp/FusionPixelStudio folder. Delete your Anim Utility Folder.")
         		return false
 			end
     		return true
@@ -172,7 +164,7 @@ local function animUtilityPoint(uniqueName)
 						INP_Integer = false,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 12,
+						LBLC_NumInputs = 14,
 						INP_External = false,
 						LINKID_DataType = "Number",
 						LINKS_Name = "Hidden Controls",
@@ -325,6 +317,18 @@ local function animUtilityPoint(uniqueName)
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Time Offset"
+					},
+					Curve = {
+						LINKS_Name = "Curve",
+						LINKID_DataType = "Number",
+						INP_Integer = false,
+						ICS_ControlPage = "Controls",
+					},
+					Lookup = {
+						LINKS_Name = "Lookup",
+						LINKID_DataType = "Number",
+						INP_Integer = false,
+						ICS_ControlPage = "Controls",
 					}
 				}
 			},]]
@@ -378,7 +382,7 @@ local function animUtilityPoint(uniqueName)
 						INP_Integer = false,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 12,
+						LBLC_NumInputs = 14,
 						INP_External = false,
 						LINKID_DataType = "Number",
 						LINKS_Name = "Hidden Controls",
@@ -531,6 +535,18 @@ local function animUtilityPoint(uniqueName)
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Time Offset"
+					},
+					Curve = {
+						LINKS_Name = "Curve",
+						LINKID_DataType = "Number",
+						INP_Integer = false,
+						ICS_ControlPage = "Controls",
+					},
+					Lookup = {
+						LINKS_Name = "Lookup",
+						LINKID_DataType = "Number",
+						INP_Integer = false,
+						ICS_ControlPage = "Controls",
 					}
 				}
 			},
@@ -568,6 +584,8 @@ local function animUtilityPoint(uniqueName)
 					CalcsEndHider1 = Input { Value = 1, },
 					CalcsEndHider2 = Input { Value = 1, },
 					CalcStartButtHider = Input { Value = 1, },
+					USERLabel = Input { Value = 1, },
+					AnimationControlsLabel = Input { Value = 1, },
 				},
 				UserControls = ordered() {
 					Value = {
@@ -614,6 +632,21 @@ local function animUtilityPoint(uniqueName)
 						IC_NoLabel = true,
 						IC_NoReset = true,
 					},
+					USERLabel = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						LBLC_NumInputs = 13,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "]] .. uniqueName .. [[ Controls"
+					},
 					In = {
 						ICD_Width = 0.5,
 						INP_Integer = true,
@@ -650,7 +683,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool:SetInput('StartSeperatedHider', 1)\ntool:SetInput('Start_EndSeperatedHider', 0)\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('StartNumberSeperated', startEndNum)\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumberSeperated + (MasterAnim*(RestNumber-StartNumberSeperated)))')",
+						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool.StartNumber:SetAttrs({INPS_Name = 'Start Number'})\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumber + (MasterAnim*(RestNumber-StartNumber)))')",
 						INP_MaxScale = 1,
 						INP_Default = 0,
 						INP_MinScale = 0,
@@ -675,7 +708,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool:SetInput('StartSeperatedHider', 0)\ntool:SetInput('Start_EndSeperatedHider', 1)\ntool:SetInput('UndoSeperaterButtonHider', 0)\nlocal startNum = tool:GetInput('StartNumberSeperated')\ntool:SetInput('StartNumber', startNum)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
+						BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool.StartNumber:SetAttrs({INPS_Name = 'Start & End Number'})\ntool:SetInput('UndoSeperaterButtonHider', 0)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
 						INP_MaxScale = 1,
 						INP_Default = 0,
 						INP_MinScale = 0,
@@ -683,18 +716,6 @@ local function animUtilityPoint(uniqueName)
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Undo Seperation"
-					},
-					Start_EndSeperatedHider = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Start & End Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
 					},
 					StartNumber = {
 						INP_MaxAllowed = 1000000,
@@ -707,30 +728,6 @@ local function animUtilityPoint(uniqueName)
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Start & End Number"
-					},
-					StartSeperatedHider = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Start Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					StartNumberSeperated = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 5,
-						INP_Default = 0,
-						INP_MinScale = -5,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Start Number"
 					},
 					RestNumber = {
 						INP_MaxAllowed = 1000000,
@@ -779,6 +776,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
 						LBLC_DropDownButton = false,
+						LBLC_NumInputs = 10,
 						INPID_InputControl = "LabelControl",
 						INP_MaxScale = 1,
 						INP_MinScale = 0,
@@ -789,150 +787,11 @@ local function animUtilityPoint(uniqueName)
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Animation Controls"
 					},
-					FramesHider = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 10,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Frames Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					ConverttoSeconds = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
-						INP_MaxScale = 1,
-						INP_Default = 0,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Convert to Seconds"
-					},
-					InAnimLength = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 50,
-						INP_Default = 24,
-						INP_MinScale = 1,
-						INP_MinAllowed = 1,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "In Anim Length"
-					},
-					OutAnimLength = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 50,
-						INP_Default = 24,
-						INP_MinScale = 1,
-						INP_MinAllowed = 1,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Out Anim Length"
-					},
-					CalculatesfromCompStartLabel = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
-						LBLC_DropDownButton = false,
-						INPID_InputControl = "LabelControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						INP_External = false,
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Calculates from Comp Start"
-					},
-					InAnimStart = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 50,
-						INP_Default = 0,
-						INP_MinScale = -50,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "In Anim Start"
-					},
-					CalcsEndHider1 = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Calcs End Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					CalculatesfromCompEndLabel = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
-						LBLC_DropDownButton = false,
-						INPID_InputControl = "LabelControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						INP_External = false,
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Calculates from Comp End"
-					},
-					CalcsStartHider1 = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Calcs Start Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
-					CalculatesfromCompStartLabel3 = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = false,
-						LBLC_DropDownButton = false,
-						INPID_InputControl = "LabelControl",
-						INP_MaxScale = 1,
-						INP_MinScale = 0,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						INP_External = false,
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Calculates from Comp Start"
-					},
-					OutAnimEnd = {
-						INP_MaxAllowed = 1000000,
-						INP_Integer = true,
-						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 50,
-						INP_Default = 0,
-						INP_MinScale = -50,
-						INP_MinAllowed = -1000000,
-						LINKID_DataType = "Number",
-						ICS_ControlPage = "Controls",
-						LINKS_Name = "Out Anim End"
-					},
 					SecondsHider = {
 						INP_Integer = true,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 10,
+						LBLC_NumInputs = 7,
 						INP_External = false,
 						LINKID_DataType = "Number",
 						LINKS_Name = "Seconds Hider",
@@ -1003,18 +862,6 @@ local function animUtilityPoint(uniqueName)
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "In Anim Start"
 					},
-					CalcsEndHider2 = {
-						INP_Integer = true,
-						LBLC_DropDownButton = true,
-						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
-						INP_External = false,
-						LINKID_DataType = "Number",
-						LINKS_Name = "Calcs End Hider",
-						INP_Passive = true,
-						ICS_ControlPage = "Controls",
-						IC_Visible = false,
-					},
 					CalculatesfromCompEndLabel2 = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
@@ -1029,19 +876,68 @@ local function animUtilityPoint(uniqueName)
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Calculates from Comp End"
 					},
-					CalcsStartHider2 = {
+					OutAnimEndSeconds = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = false,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 25,
+						INP_Default = 0,
+						INP_MinScale = -25,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim End"
+					},
+					FramesHider = {
 						INP_Integer = true,
 						LBLC_DropDownButton = true,
 						INPID_InputControl = "LabelControl",
-						LBLC_NumInputs = 1,
+						LBLC_NumInputs = 7,
 						INP_External = false,
 						LINKID_DataType = "Number",
-						LINKS_Name = "Calcs Start Hider",
+						LINKS_Name = "Frames Hider",
 						INP_Passive = true,
 						ICS_ControlPage = "Controls",
 						IC_Visible = false,
 					},
-					CalculatesfromCompStartLabel4 = {
+					ConverttoSeconds = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "ButtonControl",
+						BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+						INP_MaxScale = 1,
+						INP_Default = 0,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Convert to Seconds"
+					},
+					InAnimLength = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 24,
+						INP_MinScale = 1,
+						INP_MinAllowed = 1,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Length"
+					},
+					OutAnimLength = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 24,
+						INP_MinScale = 1,
+						INP_MinAllowed = 1,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Out Anim Length"
+					},
+					CalculatesfromCompStartLabel = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
 						LBLC_DropDownButton = false,
@@ -1055,13 +951,39 @@ local function animUtilityPoint(uniqueName)
 						ICS_ControlPage = "Controls",
 						LINKS_Name = "Calculates from Comp Start"
 					},
-					OutAnimEndSeconds = {
+					InAnimStart = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
+						INPID_InputControl = "SliderControl",
+						INP_MaxScale = 50,
+						INP_Default = 0,
+						INP_MinScale = -50,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "In Anim Start"
+					},
+					CalculatesfromCompEndLabel = {
 						INP_MaxAllowed = 1000000,
 						INP_Integer = false,
+						LBLC_DropDownButton = false,
+						INPID_InputControl = "LabelControl",
+						INP_MaxScale = 1,
+						INP_MinScale = 0,
+						INP_MinAllowed = -1000000,
+						LINKID_DataType = "Number",
+						INP_External = false,
+						INP_Passive = true,
+						ICS_ControlPage = "Controls",
+						LINKS_Name = "Calculates from Comp End"
+					},
+					OutAnimEnd = {
+						INP_MaxAllowed = 1000000,
+						INP_Integer = true,
 						INPID_InputControl = "SliderControl",
-						INP_MaxScale = 25,
+						INP_MaxScale = 50,
 						INP_Default = 0,
-						INP_MinScale = -25,
+						INP_MinScale = -50,
 						INP_MinAllowed = -1000000,
 						LINKID_DataType = "Number",
 						ICS_ControlPage = "Controls",
@@ -1083,7 +1005,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool:SetInput('CalcsEndHider2', 0)\ntool:SetInput('CalcsStartHider2', 1)\ntool:SetInput('CalcsEndHider1', 0)\ntool:SetInput('CalcsStartHider1', 1)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
+						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool.CalculatesfromCompEndLabel:SetAttrs({INPS_Name = 'Calculates from Comp Start'})\ntool.CalculatesfromCompEndLabel2:SetAttrs({INPS_Name = 'Calculates from Comp Start'})\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
 						INP_MaxScale = 1,
 						INP_Default = 0,
 						INP_MinScale = 0,
@@ -1108,7 +1030,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool:SetInput('CalcsEndHider2', 1)\ntool:SetInput('CalcsStartHider2', 0)\ntool:SetInput('CalcsEndHider1', 1)\ntool:SetInput('CalcsStartHider1', 0)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
+						BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool.CalculatesfromCompEndLabel:SetAttrs({INPS_Name = 'Calculates from Comp End'})\ntool.CalculatesfromCompEndLabel2:SetAttrs({INPS_Name = 'Calculates from Comp End'})\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim End'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
 						INP_MaxScale = 1,
 						INP_Default = 0,
 						INP_MinScale = 0,
@@ -1186,7 +1108,7 @@ local function animUtilityNumber(uniqueName)
 							INP_Integer = false,
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 12,
+							LBLC_NumInputs = 14,
 							INP_External = false,
 							LINKID_DataType = "Number",
 							LINKS_Name = "Hidden Controls",
@@ -1339,6 +1261,18 @@ local function animUtilityNumber(uniqueName)
 							LINKID_DataType = "Number",
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Time Offset"
+						},
+						Curve = {
+							LINKS_Name = "Curve",
+							LINKID_DataType = "Number",
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+						},
+						Lookup = {
+							LINKS_Name = "Lookup",
+							LINKID_DataType = "Number",
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
 						}
 					}
 				},]]
@@ -1392,7 +1326,7 @@ local function animUtilityNumber(uniqueName)
 							INP_Integer = false,
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 12,
+							LBLC_NumInputs = 14,
 							INP_External = false,
 							LINKID_DataType = "Number",
 							LINKS_Name = "Hidden Controls",
@@ -1545,6 +1479,18 @@ local function animUtilityNumber(uniqueName)
 							LINKID_DataType = "Number",
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Time Offset"
+						},
+						Curve = {
+							LINKS_Name = "Curve",
+							LINKID_DataType = "Number",
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
+						},
+						Lookup = {
+							LINKS_Name = "Lookup",
+							LINKID_DataType = "Number",
+							INP_Integer = false,
+							ICS_ControlPage = "Controls",
 						}
 					}
 				},
@@ -1582,6 +1528,8 @@ local function animUtilityNumber(uniqueName)
 						CalcsEndHider1 = Input { Value = 1, },
 						CalcsEndHider2 = Input { Value = 1, },
 						CalcStartButtHider = Input { Value = 1, },
+						USERLabel = Input { Value = 1, },
+						AnimationControlsLabel = Input { Value = 1, },
 					},
 					UserControls = ordered() {
 						Value = {
@@ -1628,6 +1576,21 @@ local function animUtilityNumber(uniqueName)
 							IC_NoLabel = true,
 							IC_NoReset = true,
 						},
+						USERLabel = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							LBLC_NumInputs = 13,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "]] .. uniqueName .. [[ Controls"
+						},
 						In = {
 							ICD_Width = 0.5,
 							INP_Integer = true,
@@ -1664,7 +1627,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
 							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool:SetInput('StartSeperatedHider', 1)\ntool:SetInput('Start_EndSeperatedHider', 0)\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('StartNumberSeperated', startEndNum)\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumberSeperated + (MasterAnim*(RestNumber-StartNumberSeperated)))')",
+							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 0)\ntool:SetInput('EndSeperatedHider', 1)\ntool.StartNumber:SetAttrs({INPS_Name = 'Start Number'})\ntool:SetInput('UndoSeperaterButtonHider', 1)\nlocal startEndNum = tool:GetInput('StartNumber')\ntool:SetInput('EndNumber', startEndNum)\ntool.Value:SetExpression('iif(time>InAnimLength+InAnimStart, EndNumber + (MasterAnim*(RestNumber-EndNumber)), StartNumber + (MasterAnim*(RestNumber-StartNumber)))')",
 							INP_MaxScale = 1,
 							INP_Default = 0,
 							INP_MinScale = 0,
@@ -1689,7 +1652,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
 							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool:SetInput('StartSeperatedHider', 0)\ntool:SetInput('Start_EndSeperatedHider', 1)\ntool:SetInput('UndoSeperaterButtonHider', 0)\nlocal startNum = tool:GetInput('StartNumberSeperated')\ntool:SetInput('StartNumber', startNum)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
+							BTNCS_Execute = "tool:SetInput('SeperaterButtonHider', 1)\ntool:SetInput('EndSeperatedHider', 0)\ntool.StartNumber:SetAttrs({INPS_Name = 'Start & End Number'})\ntool:SetInput('UndoSeperaterButtonHider', 0)\ntool.Value:SetExpression('StartNumber + (MasterAnim*(RestNumber-StartNumber))')",
 							INP_MaxScale = 1,
 							INP_Default = 0,
 							INP_MinScale = 0,
@@ -1697,18 +1660,6 @@ local function animUtilityNumber(uniqueName)
 							LINKID_DataType = "Number",
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Undo Seperation"
-						},
-						Start_EndSeperatedHider = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Start & End Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
 						},
 						StartNumber = {
 							INP_MaxAllowed = 1000000,
@@ -1721,30 +1672,6 @@ local function animUtilityNumber(uniqueName)
 							LINKID_DataType = "Number",
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Start & End Number"
-						},
-						StartSeperatedHider = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Start Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
-						},
-						StartNumberSeperated = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = false,
-							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 5,
-							INP_Default = 0,
-							INP_MinScale = -5,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Start Number"
 						},
 						RestNumber = {
 							INP_MaxAllowed = 1000000,
@@ -1793,6 +1720,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = false,
 							LBLC_DropDownButton = false,
+							LBLC_NumInputs = 10,
 							INPID_InputControl = "LabelControl",
 							INP_MaxScale = 1,
 							INP_MinScale = 0,
@@ -1803,150 +1731,11 @@ local function animUtilityNumber(uniqueName)
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Animation Controls"
 						},
-						FramesHider = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 10,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Frames Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
-						},
-						ConverttoSeconds = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = true,
-							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
-							INP_MaxScale = 1,
-							INP_Default = 0,
-							INP_MinScale = 0,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Convert to Seconds"
-						},
-						InAnimLength = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = true,
-							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 50,
-							INP_Default = 24,
-							INP_MinScale = 1,
-							INP_MinAllowed = 1,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "In Anim Length"
-						},
-						OutAnimLength = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = true,
-							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 50,
-							INP_Default = 24,
-							INP_MinScale = 1,
-							INP_MinAllowed = 1,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Out Anim Length"
-						},
-						CalculatesfromCompStartLabel = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = false,
-							LBLC_DropDownButton = false,
-							INPID_InputControl = "LabelControl",
-							INP_MaxScale = 1,
-							INP_MinScale = 0,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							INP_External = false,
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Calculates from Comp Start"
-						},
-						InAnimStart = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = true,
-							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 50,
-							INP_Default = 0,
-							INP_MinScale = -50,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "In Anim Start"
-						},
-						CalcsEndHider1 = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Calcs End Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
-						},
-						CalculatesfromCompEndLabel = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = false,
-							LBLC_DropDownButton = false,
-							INPID_InputControl = "LabelControl",
-							INP_MaxScale = 1,
-							INP_MinScale = 0,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							INP_External = false,
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Calculates from Comp End"
-						},
-						CalcsStartHider1 = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Calcs Start Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
-						},
-						CalculatesfromCompStartLabel3 = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = false,
-							LBLC_DropDownButton = false,
-							INPID_InputControl = "LabelControl",
-							INP_MaxScale = 1,
-							INP_MinScale = 0,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							INP_External = false,
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Calculates from Comp Start"
-						},
-						OutAnimEnd = {
-							INP_MaxAllowed = 1000000,
-							INP_Integer = true,
-							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 50,
-							INP_Default = 0,
-							INP_MinScale = -50,
-							INP_MinAllowed = -1000000,
-							LINKID_DataType = "Number",
-							ICS_ControlPage = "Controls",
-							LINKS_Name = "Out Anim End"
-						},
 						SecondsHider = {
 							INP_Integer = true,
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 10,
+							LBLC_NumInputs = 7,
 							INP_External = false,
 							LINKID_DataType = "Number",
 							LINKS_Name = "Seconds Hider",
@@ -2017,18 +1806,6 @@ local function animUtilityNumber(uniqueName)
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "In Anim Start"
 						},
-						CalcsEndHider2 = {
-							INP_Integer = true,
-							LBLC_DropDownButton = true,
-							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
-							INP_External = false,
-							LINKID_DataType = "Number",
-							LINKS_Name = "Calcs End Hider",
-							INP_Passive = true,
-							ICS_ControlPage = "Controls",
-							IC_Visible = false,
-						},
 						CalculatesfromCompEndLabel2 = {
 							INP_MaxAllowed = 1000000,
 							INP_Integer = false,
@@ -2043,19 +1820,68 @@ local function animUtilityNumber(uniqueName)
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Calculates from Comp End"
 						},
-						CalcsStartHider2 = {
+						OutAnimEndSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 25,
+							INP_Default = 0,
+							INP_MinScale = -25,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim End"
+						},
+						FramesHider = {
 							INP_Integer = true,
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "LabelControl",
-							LBLC_NumInputs = 1,
+							LBLC_NumInputs = 7,
 							INP_External = false,
 							LINKID_DataType = "Number",
-							LINKS_Name = "Calcs Start Hider",
+							LINKS_Name = "Frames Hider",
 							INP_Passive = true,
 							ICS_ControlPage = "Controls",
 							IC_Visible = false,
 						},
-						CalculatesfromCompStartLabel4 = {
+						ConverttoSeconds = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "ButtonControl",
+							BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+							INP_MaxScale = 1,
+							INP_Default = 0,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Convert to Seconds"
+						},
+						InAnimLength = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 24,
+							INP_MinScale = 1,
+							INP_MinAllowed = 1,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Length"
+						},
+						OutAnimLength = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 24,
+							INP_MinScale = 1,
+							INP_MinAllowed = 1,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Out Anim Length"
+						},
+						CalculatesfromCompStartLabel = {
 							INP_MaxAllowed = 1000000,
 							INP_Integer = false,
 							LBLC_DropDownButton = false,
@@ -2069,13 +1895,39 @@ local function animUtilityNumber(uniqueName)
 							ICS_ControlPage = "Controls",
 							LINKS_Name = "Calculates from Comp Start"
 						},
-						OutAnimEndSeconds = {
+						InAnimStart = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 0,
+							INP_MinScale = -50,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "In Anim Start"
+						},
+						CalculatesfromCompEndLabel = {
 							INP_MaxAllowed = 1000000,
 							INP_Integer = false,
+							LBLC_DropDownButton = false,
+							INPID_InputControl = "LabelControl",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_Passive = true,
+							ICS_ControlPage = "Controls",
+							LINKS_Name = "Calculates from Comp End"
+						},
+						OutAnimEnd = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
 							INPID_InputControl = "SliderControl",
-							INP_MaxScale = 25,
+							INP_MaxScale = 50,
 							INP_Default = 0,
-							INP_MinScale = -25,
+							INP_MinScale = -50,
 							INP_MinAllowed = -1000000,
 							LINKID_DataType = "Number",
 							ICS_ControlPage = "Controls",
@@ -2097,7 +1949,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
 							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool:SetInput('CalcsEndHider2', 0)\ntool:SetInput('CalcsStartHider2', 1)\ntool:SetInput('CalcsEndHider1', 0)\ntool:SetInput('CalcsStartHider1', 1)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
+							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 0)\ntool:SetInput('CalcEndButtHider', 1)\ntool.CalculatesfromCompEndLabel:SetAttrs({INPS_Name = 'Calculates from Comp Start'})\ntool.CalculatesfromCompEndLabel2:SetAttrs({INPS_Name = 'Calculates from Comp Start'})\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim Start'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('(]].. uniqueName .. [[_CONTROLS.OutAnimEnd/(comp.RenderEnd-comp.RenderStart))')",
 							INP_MaxScale = 1,
 							INP_Default = 0,
 							INP_MinScale = 0,
@@ -2122,7 +1974,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
 							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool:SetInput('CalcsEndHider2', 1)\ntool:SetInput('CalcsStartHider2', 0)\ntool:SetInput('CalcsEndHider1', 1)\ntool:SetInput('CalcsStartHider1', 0)\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim Start'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
+							BTNCS_Execute = "tool:SetInput('CalcStartButtHider', 1)\ntool:SetInput('CalcEndButtHider', 0)\ntool.CalculatesfromCompEndLabel:SetAttrs({INPS_Name = 'Calculates from Comp End'})\ntool.CalculatesfromCompEndLabel2:SetAttrs({INPS_Name = 'Calculates from Comp End'})\ntool.OutAnimEnd:SetAttrs({INPS_Name = 'Out Anim End'})\ntool.OutAnimEndSeconds:SetAttrs({INPS_Name = 'Out Anim End'})\n]].. uniqueName .. [[_OUTCURVES.TimeOffset:SetExpression('1-((]].. uniqueName .. [[_CONTROLS.OutAnimLength+]].. uniqueName .. [[_CONTROLS.OutAnimEnd)/(comp.RenderEnd-comp.RenderStart))')",
 							INP_MaxScale = 1,
 							INP_Default = 0,
 							INP_MinScale = 0,
@@ -2266,7 +2118,6 @@ local function fillTree()
 	for _, c in ipairs(NodeControls) do
 		local it = mainWnditm.NodeControls:NewItem()
 		if c.Type == "Number" or c.Type == "Point" then
-			--print(c.ID .. ',' .. c.Name .. ',' .. c.Type)
 			it.Text[0] = c.ID
 			it.Text[1] = c.Name
 			it.Text[2] = c.Type
@@ -2276,7 +2127,6 @@ local function fillTree()
 		c._Hidden = false
 	end
 	comp:SetData("tool_control_pages", tool_control_pages)
-	--print(table.unpack(comp:GetData("tool_control_pages")))
 	for i,v in ipairs(NodeControls) do
 
 		local searchkey = {}
@@ -2317,7 +2167,7 @@ local controlType
 function mainWnd.On.NodeControls.ItemClicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
-		showMessage(355,"No Selected Node","Please make sure you have a node selected while using this tool!") --You must have a node to select a control
+		showMessage(425,"No Selected Node","Please make sure you have a node selected while using this tool!") --You must have a node to select a control
 	else
 		Control = ev.item.Text[0]
 		controlType = ev.item.Text[2]
@@ -2337,7 +2187,7 @@ mainWnditm.NodeControls.ColumnWidth[0] = 200
 function mainWnd.On.Reload.Clicked(ev)
 	node = comp.ActiveTool
 	if node == nil then
-		showMessage(355,"No Selected Node","No Node Selected!\nPlease select a node before Reloading!")
+		showMessage(425,"No Selected Node","No Node Selected!\nPlease select a node before Reloading!")
 	else
 		nodeName = node:GetAttrs().TOOLS_Name
 		mainWnditm.SearchBar:Clear()
@@ -2356,7 +2206,7 @@ function mainWnd.On.Paste.Clicked(ev)
 	node = comp.ActiveTool
 	nodeName = node:GetAttrs().TOOLS_Name
     if name == '' then
-        showMessage(355,"No Unique Name","Please Write Out a Unique Name.")
+        showMessage(425,"No Unique Name","Please Write Out a Unique Name.")
     else
 			if controlType == 'Number' then
 				comp:Paste(bmd.readstring(animUtilityNumber(name)))
@@ -2368,7 +2218,6 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		--showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
 		mainWnditm.Paste.Text = "Success!"
 		bmd.wait(5)
 		mainWnditm.Paste.Text = "Paste Anim Utility"
@@ -2382,7 +2231,6 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		--showMessage("Connected Succesfully","Connected " .. nodeControl .. "\n to \n" .. Modifierstr)
 		mainWnditm.Paste.Text = "Success!"
 		bmd.wait(5)
 		mainWnditm.Paste.Text = "Paste Anim Utility"
@@ -2396,7 +2244,7 @@ function mainWnd.On.Paste.Clicked(ev)
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
-		showMessage(305,"Pasted Succesfully","Pasted " .. name .. " Anim Utility.\nYou did not select a control.\nPlease do 'Connect To' on the control you want to animate and connect to " .. Modifierstr..".")
+		showMessage(410,"Pasted Succesfully","Pasted " .. name .. " Anim Utility.\nYou did not select a control.\nPlease do 'Connect To' on the control you want to animate and connect to " .. Modifierstr..".")
 	end
     end
 end
@@ -2453,11 +2301,10 @@ end
 end
 -- You MUST have a node selected to open the GUI
 if type(node) ~= "userdata" then
-    showMessage(355,"No Selected Node","NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
+    showMessage(425,"No Selected Node","NO NODE SELECTED\nPlease Select a Node Before Activating Script.")
 else
 	node = comp.ActiveTool
 	nodeName = node:GetAttrs().TOOLS_Name
-	--mainWnditm.MainWindow.WindowTitle = "Anim Utility | " .. nodeName
 	CreateToolWindow()
 end
 
