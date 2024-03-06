@@ -91,7 +91,6 @@ local function InstallScript()
     local target_path = nil
 	local dirExistsMain = bmd.direxists(folderMain)
 	local dirExistsRoot = bmd.direxists(folderRoot)
-	local downloads = source_path:match("(.*[/\\])")
 	if not dirExistsMain then
 		if not dirExistsRoot then
 			bmd.createdir(folderRoot)
@@ -113,7 +112,8 @@ local function InstallScript()
     		return true
 end
 -- Anim Utility Modifiers for Point Values 
-local function animUtilityPoint(uniqueName)
+local function animUtilityPoint(uniqueName,Point)
+	Point = Point or {0,0}
 	local s =[[
 		{
 			Tools = ordered() { ]]
@@ -124,6 +124,8 @@ local function animUtilityPoint(uniqueName)
 						SourceOp = "]].. uniqueName .. [[_CONTROLS",
 						Source = "Value",
 					},
+					Origin = Input { Value = {]]..Point..[[}, },
+					Angle = Input { Value = 0, },
 				},
 			},]]
 			.. uniqueName .. [[_INCURVES = LUTLookup {
@@ -904,7 +906,7 @@ local function animUtilityPoint(uniqueName)
 						INP_MaxAllowed = 1000000,
 						INP_Integer = true,
 						INPID_InputControl = "ButtonControl",
-						BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+						BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')",
 						INP_MaxScale = 1,
 						INP_Default = 0,
 						INP_MinScale = 0,
@@ -1048,7 +1050,8 @@ local function animUtilityPoint(uniqueName)
 return s
 end
 -- Anim Utility Modifiers for Sliders
-local function animUtilityNumber(uniqueName)
+local function animUtilityNumber(uniqueName, ControlVal)
+	ControlVal = ControlVal or 0
     local s = [[
 		{
 			Tools = ordered() {]]
@@ -1530,6 +1533,8 @@ local function animUtilityNumber(uniqueName)
 						CalcStartButtHider = Input { Value = 1, },
 						USERLabel = Input { Value = 1, },
 						AnimationControlsLabel = Input { Value = 1, },
+						StartNumber = Input { Value = 0, },
+						RestNumber = Input{ Value = ]] .. ControlVal .. [[, },
 					},
 					UserControls = ordered() {
 						Value = {
@@ -1848,7 +1853,7 @@ local function animUtilityNumber(uniqueName)
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
 							INPID_InputControl = "ButtonControl",
-							BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\nlocal fps = comp:GetPrefs('Comp.FrameFormat.Rate')\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*'..fps)\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*'..fps)",
+							BTNCS_Execute = "tool:SetInput('FramesHider', 0)\ntool:SetInput('SecondsHider', 1)\nfusion = Fusion(); fu = fusion; composition = fu.CurrentComp; comp = composition;\nlocal seconds1 = tool:GetInput('InAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds2 = tool:GetInput('OutAnimLength')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimLengthSeconds', seconds1)\ntool:SetInput('OutAnimLengthSeconds', seconds2)\nlocal seconds3 = tool:GetInput('InAnimStart')/comp:GetPrefs('Comp.FrameFormat.Rate')\nlocal seconds4 = tool:GetInput('OutAnimEnd')/comp:GetPrefs('Comp.FrameFormat.Rate')\ntool:SetInput('InAnimStartSeconds', seconds3)\ntool:SetInput('OutAnimEndSeconds', seconds4)\n]].. uniqueName .. [[_CONTROLS.InAnimLength:SetExpression('InAnimLengthSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.OutAnimLength:SetExpression('OutAnimLengthSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.InAnimStart:SetExpression('InAnimStartSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')\n]].. uniqueName .. [[_CONTROLS.OutAnimEnd:SetExpression('OutAnimEndSeconds*comp:GetPrefs(\"Comp.FrameFormat.Rate\")')",
 							INP_MaxScale = 1,
 							INP_Default = 0,
 							INP_MinScale = 0,
@@ -2018,7 +2023,7 @@ local function CreateToolWindow()
 				Weight = 0.5,
 				MinimumSize = {width, 100},
 				ui:LineEdit{ID = 'SearchBar', PlaceholderText = 'Enter Control ID to Search',Weight = 0.01, MaximumSize = { width, 24 }, MinimumSize = { width, 24 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
-                ui:Tree{ID = 'NodeControls', SortingEnabled = true, Events = { ItemClicked = true }, Weight = 0.25, MaximumSize = { width, 200 }, MinimumSize = { width, 200 }, StyleSheet = [[background-color:#1f1f1f;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
+                ui:Tree{ID = 'NodeControls', Events = { ItemClicked = true }, Weight = 0.25, MaximumSize = { width, 200 }, MinimumSize = { width, 200 }, StyleSheet = [[background-color:#1f1f1f;font-family: Amaranth;font-size: 15px;color:rgb(255,255,255);]]},
 				ui:Label{Weight = 0, MaximumSize = { width, 8 }, MinimumSize = { width, 8 } },
 				ui:Label{ID = 'UniqueNameLabel', Text = 'Unique Name for Anim Utility Modifiers', Weight = 0.01, MaximumSize = { width, 18 }, MinimumSize = { width, 18 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;font-weight: bold;color:rgb(255,255,255);]]},
                 ui:LineEdit{ ID = 'UniqueName', PlaceholderText = 'Unique Name', Weight = 0.03, MaximumSize = { width, 34 }, MinimumSize = { width, 34 }, StyleSheet = [[font-family: Amaranth;font-size: 15px;]]},
@@ -2044,7 +2049,7 @@ function mainWnd.On.MainWindow.Close(ev)
 end
 
 function mainWnd.On.YT.Clicked(ev)
-	bmd.openurl('https://www.youtube.com/channel/UC_OnaF0lKfexzEL9Yminymw')
+	bmd.openurl('https://youtu.be/XR1yyT2SsGk')
 end
 
 function mainWnd.On.KoFi.Clicked(ev)
@@ -2095,7 +2100,6 @@ end
 
 local control_type
 
-local page = ""
 local function fillTree()
 	comp:SetData("tool_control_pages", {})
 	local tool_control_pages = comp:GetData("tool_control_pages")
@@ -2107,13 +2111,11 @@ local function fillTree()
 		control_type = v:GetAttrs().INPS_DataType
         local control = v:GetAttrs().INPS_ID 
 		local controlName = v:GetAttrs().INPS_Name
-		page = v:GetAttrs().INPS_ICS_ControlPage
 		Controls = {}
 		Controls.ID = control
 		Controls.Name = controlName
 		Controls.Type = control_type
 		table.insert(NodeControls, Controls)
-		table.insert(tool_control_pages, page)
     end
 	for _, c in ipairs(NodeControls) do
 		local it = mainWnditm.NodeControls:NewItem()
@@ -2169,9 +2171,11 @@ function mainWnd.On.NodeControls.ItemClicked(ev)
 	if node == nil then
 		showMessage(425,"No Selected Node","Please make sure you have a node selected while using this tool!") --You must have a node to select a control
 	else
+		ControlVal = nil
 		Control = ev.item.Text[0]
 		controlType = ev.item.Text[2]
-		mainWnditm.UniqueName.Clear()
+		ControlVal = node:GetInput(tostring(Control))
+		mainWnditm.UniqueName:Clear()
 		nodeName = node:GetAttrs().TOOLS_Name
 		mainWnditm.UniqueName.Text = tostring(nodeName) .. '_' .. tostring(Control)
 	end
@@ -2192,7 +2196,7 @@ function mainWnd.On.Reload.Clicked(ev)
 		nodeName = node:GetAttrs().TOOLS_Name
 		mainWnditm.SearchBar:Clear()
 		mainWnditm.NodeControls:Clear()
-		mainWnditm.UniqueName.Text = ''
+		mainWnditm.UniqueName:Clear()
 		mainWnditm.MainWindow.WindowTitle = "Anim Utility | " .. nodeName
 		fillTree()
 		Control = nil
@@ -2209,12 +2213,9 @@ function mainWnd.On.Paste.Clicked(ev)
         showMessage(425,"No Unique Name","Please Write Out a Unique Name.")
     else
 			if controlType == 'Number' then
-				comp:Paste(bmd.readstring(animUtilityNumber(name)))
-				local nodestr = tostring(nodeName)
-				local controlStr = tostring(Control)
-				local nodeControl = nodestr .. '.' .. controlStr
-				local ModifierName = name .. '_CONNECT_TO_ME'
-				local Modifierstr = ModifierName .. '.CONNECTION'
+				comp:Paste(bmd.readstring(animUtilityNumber(name,ControlVal)))
+				local nodeControl = tostring(nodeName) .. '.' .. tostring(Control)
+				local Modifierstr = name .. '_CONNECT_TO_ME.CONNECTION'
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
@@ -2222,12 +2223,10 @@ function mainWnd.On.Paste.Clicked(ev)
 		bmd.wait(5)
 		mainWnditm.Paste.Text = "Paste Anim Utility"
 	elseif controlType == 'Point' then
-		comp:Paste(bmd.readstring(animUtilityPoint(name)))
-		local nodestr = tostring(nodeName)
-		local controlStr = tostring(Control)
-		local nodeControl = nodestr .. '.' .. controlStr
-		local ModifierName = name .. '_VECTOR' 
-		local Modifierstr = ModifierName .. '.Position'
+		
+		comp:Paste(bmd.readstring(animUtilityPoint(name,ControlVal[1]..','..ControlVal[2])))
+		local nodeControl = tostring(nodeName) .. '.' .. tostring(Control)
+		local Modifierstr = name .. '_VECTOR.Position'
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
@@ -2236,11 +2235,8 @@ function mainWnd.On.Paste.Clicked(ev)
 		mainWnditm.Paste.Text = "Paste Anim Utility"
 	else 
 		comp:Paste(bmd.readstring(animUtilityNumber(name)))
-				local nodestr = tostring(nodeName)
-				local controlStr = tostring(Control)
-				local nodeControl = nodestr .. '.' .. controlStr
-				local ModifierName = name .. '_CONNECT_TO_ME'
-				local Modifierstr = ModifierName .. '.CONNECTION'
+		local nodeControl = tostring(nodeName) .. '.' .. tostring(Control)
+		local Modifierstr = name .. '_CONNECT_TO_ME.CONNECTION'
 		if Control ~= nil then
 			comp:Execute(nodeControl .. ":ConnectTo(" .. Modifierstr .. ")")
 		end
